@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>ToxiGuard AI</title>
+    <style>
+      body {
+        font-family: "Segoe UI", Arial, sans-serif;
+        padding: 0;
+        margin: 0;
+        width: 320px;
+        background: #f8f9fa;
+      }
+
+      .header {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        padding: 16px;
+        text-align: center;
+      }
+
+      .header h3 {
+        margin: 0;
+        font-size: 18px;
+        font-weight: 600;
+      }
+
+      .content {
+        padding: 16px;
+      }
+
+      .section {
+        background: white;
+        border-radius: 8px;
+        padding: 16px;
+        margin-bottom: 12px;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+      }
+
+      .section-title {
+        font-weight: 600;
+        margin-bottom: 12px;
+        color: #333;
+        font-size: 14px;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+      }
+
+      .toggle-row {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 12px;
+        padding: 8px 0;
+      }
+
+      .toggle-row:last-child {
+        margin-bottom: 0;
+      }
+
+      .toggle-label {
+        font-size: 14px;
+        color: #555;
+        flex: 1;
+      }
+
+      .toggle-switch {
+        position: relative;
+        width: 44px;
+        height: 24px;
+        background: #ccc;
+        border-radius: 12px;
+        cursor: pointer;
+        transition: background 0.3s;
+      }
+
+      .toggle-switch.active {
+        background: #4caf50;
+      }
+
+      .toggle-switch::after {
+        content: "";
+        position: absolute;
+        width: 20px;
+        height: 20px;
+        border-radius: 50%;
+        background: white;
+        top: 2px;
+        left: 2px;
+        transition: transform 0.3s;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+      }
+
+      .toggle-switch.active::after {
+        transform: translateX(20px);
+      }
+
+      .toggle-switch input {
+        display: none;
+      }
+
+      .threshold-section {
+        margin-top: 12px;
+      }
+
+      .threshold-label {
+        display: block;
+        font-size: 14px;
+        color: #555;
+        margin-bottom: 8px;
+      }
+
+      .threshold-slider {
+        width: 100%;
+        margin-bottom: 8px;
+      }
+
+      .threshold-value {
+        text-align: center;
+        font-size: 12px;
+        color: #666;
+        background: #f0f0f0;
+        padding: 4px 8px;
+        border-radius: 4px;
+      }
+
+      .category-item {
+        display: flex;
+        align-items: center;
+        margin-bottom: 8px;
+        padding: 6px 0;
+      }
+
+      .category-emoji {
+        margin-right: 8px;
+        font-size: 16px;
+      }
+
+      .status-bar {
+        background: #2196f3;
+        color: white;
+        padding: 8px 16px;
+        text-align: center;
+        font-size: 12px;
+      }
+
+      .disabled {
+        opacity: 0.5;
+        pointer-events: none;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="header">
+      <h3>🛡️ ToxiGuard AI</h3>
+    </div>
+
+    <div class="content">
+      <!-- Main Controls -->
+      <div class="section">
+        <div class="section-title">Main Controls</div>
+
+        <div class="toggle-row">
+          <span class="toggle-label">Enable Detection</span>
+          <label class="toggle-switch" id="detection-toggle">
+            <input type="checkbox" id="toggle-detection" />
+          </label>
+        </div>
+
+        <div class="toggle-row">
+          <span class="toggle-label">Auto Censor</span>
+          <label class="toggle-switch" id="censor-toggle">
+            <input type="checkbox" id="auto-censor" />
+          </label>
+        </div>
+      </div>
+
+      <!-- Sensitivity -->
+      <div class="section" id="sensitivity-section">
+        <div class="section-title">Sensitivity</div>
+        <div class="threshold-section">
+          <label class="threshold-label"
+            >Detection Threshold: <span id="threshold-display">0.9</span></label
+          >
+          <input
+            type="range"
+            class="threshold-slider"
+            id="threshold-slider"
+            min="0.1"
+            max="1.0"
+            step="0.1"
+            value="0.9"
+          />
+          <div class="threshold-value">
+            Lower = More Sensitive | Higher = Less Sensitive
+          </div>
+        </div>
+      </div>
+
+      <!-- Categories -->
+      <div class="section" id="categories-section">
+        <div class="section-title">Toxicity Categories</div>
+
+        <div class="category-item">
+          <span class="category-emoji">🤬</span>
+          <div class="toggle-row">
+            <span class="toggle-label">Insults</span>
+            <label class="toggle-switch" data-category="insult">
+              <input type="checkbox" checked />
+            </label>
+          </div>
+        </div>
+
+        <div class="category-item">
+          <span class="category-emoji">🔞</span>
+          <div class="toggle-row">
+            <span class="toggle-label">Obscene Content</span>
+            <label class="toggle-switch" data-category="obscene">
+              <input type="checkbox" checked />
+            </label>
+          </div>
+        </div>
+
+        <div class="category-item">
+          <span class="category-emoji">⚔️</span>
+          <div class="toggle-row">
+            <span class="toggle-label">Threats</span>
+            <label class="toggle-switch" data-category="threat">
+              <input type="checkbox" checked />
+            </label>
+          </div>
+        </div>
+
+        <div class="category-item">
+          <span class="category-emoji">🎯</span>
+          <div class="toggle-row">
+            <span class="toggle-label">Identity Attacks</span>
+            <label class="toggle-switch" data-category="identity_attack">
+              <input type="checkbox" checked />
+            </label>
+          </div>
+        </div>
+
+        <div class="category-item">
+          <span class="category-emoji">🔞</span>
+          <div class="toggle-row">
+            <span class="toggle-label">Sexually Explicit</span>
+            <label class="toggle-switch" data-category="sexually_explicit">
+              <input type="checkbox" checked />
+            </label>
+          </div>
+        </div>
+
+        <div class="category-item">
+          <span class="category-emoji">💀</span>
+          <div class="toggle-row">
+            <span class="toggle-label">Severe Toxicity</span>
+            <label class="toggle-switch" data-category="severe_toxicity">
+              <input type="checkbox" checked />
+            </label>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="status-bar" id="status-bar">
+      Ready to protect your browsing experience
+    </div>
+
+    <script src="popup.js"></script>
+  </body>
+</html>
