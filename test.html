@@ -1,84 +1,351 @@
 <!DOCTYPE html>
 <html lang="en">
   <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Toxic Shield Test Page</title>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Toxic Shield — Comprehensive Test Page</title>
     <style>
-      body {
-        font-family: Arial, sans-serif;
-        max-width: 800px;
-        margin: 20px auto;
-        padding: 20px;
-      }
-      .test-section {
-        margin: 20px 0;
-        padding: 20px;
-        border: 1px solid #ccc;
-        border-radius: 5px;
-      }
-      .contenteditable {
-        border: 1px solid #ddd;
-        padding: 10px;
-        min-height: 100px;
-        margin: 10px 0;
-      }
-      textarea {
-        width: 100%;
-        min-height: 100px;
-        margin: 10px 0;
-      }
-      input[type="text"] {
-        width: 100%;
-        padding: 8px;
-        margin: 10px 0;
-      }
-      h3 {
-        color: #333;
-      }
+      :root{--card-bg:#fff;--muted:#666}
+      body{font-family:Inter,Segoe UI,Arial,sans-serif;max-width:1100px;margin:20px auto;padding:20px;background:#f7f8fb;color:#111}
+      header{display:flex;align-items:center;gap:16px}
+      h1{margin:0;font-size:1.4rem}
+      .grid{display:grid;grid-template-columns:1fr 360px;gap:20px;margin-top:16px}
+      .card{background:var(--card-bg);border:1px solid #e3e6ee;padding:16px;border-radius:8px;box-shadow:0 1px 0 rgba(16,24,40,0.02)}
+      .section{margin-bottom:12px}
+      label{display:block;font-weight:600;margin-bottom:6px}
+      input[type="text"], textarea, .contenteditable{width:100%;padding:8px;border-radius:6px;border:1px solid #d6d9e6}
+      .contenteditable{min-height:100px}
+      button{padding:8px 10px;border-radius:6px;border:1px solid #cbd5e1;background:#fff;cursor:pointer}
+      .btn-primary{background:#0b69ff;color:#fff;border-color:#0857d6}
+      .controls{display:flex;flex-wrap:wrap;gap:8px;margin-top:8px}
+      .phrases{display:flex;flex-direction:column;gap:8px}
+      .log{height:300px;overflow:auto;background:#0b0f1a;color:#e6eef8;padding:10px;border-radius:6px;font-family:monospace;font-size:12px}
+      .muted{color:var(--muted);font-size:13px}
+      .row{display:flex;gap:8px;align-items:center}
+      .small{font-size:12px}
+      .highlight{outline:3px solid rgba(255,80,80,0.12)}
+      .samples{display:flex;gap:8px;flex-wrap:wrap}
+      .samples button{padding:6px 8px}
+      footer{margin-top:20px;font-size:13px;color:var(--muted)}
     </style>
   </head>
   <body>
-    <h1>Toxic Shield Extension Test Page</h1>
-    <p>Use this page to test different text input scenarios.</p>
+    <header>
+      <h1>🔬 Toxic Shield — Comprehensive Test Page</h1>
+      <div class="muted">Use this page to exercise inputs, dynamic elements, shadow DOM, iframes, paste events, and simulated typing.</div>
+    </header>
 
-    <div class="test-section">
-      <h3>1. Regular Input Field</h3>
-      <input type="text" placeholder="Type toxic words here..." />
+    <div class="grid">
+      <main class="card">
+        <section class="section">
+          <label>Target selector / focus</label>
+          <div class="row">
+            <select id="targetSelect">
+              <option value="input">Input[type=text]</option>
+              <option value="textarea">Textarea</option>
+              <option value="content">Contenteditable DIV</option>
+              <option value="shadow">Shadow DOM input</option>
+              <option value="iframe">Iframe input</option>
+              <option value="dynamic">Last created dynamic element</option>
+            </select>
+            <button id="focusTarget">Focus target</button>
+            <button id="clearLog">Clear Log</button>
+          </div>
+        </section>
+
+        <section class="section">
+          <label>1) Basic interactive inputs</label>
+          <div class="section">
+            <input id="testInput" type="text" placeholder="Type toxic words here..." />
+            <textarea id="testTextarea" placeholder="Paste or type long content here..."></textarea>
+            <div id="testContent" class="contenteditable" contenteditable="true">Click here and start typing or paste content.</div>
+          </div>
+        </section>
+
+        <section class="section">
+          <label>2) Shadow DOM & Iframe</label>
+          <div class="row" style="gap:12px">
+            <div id="shadowHost" class="card" style="padding:8px;min-width:200px">Shadow host (created below)</div>
+            <div>
+              <button id="createShadow">Create Shadow Input</button>
+            </div>
+            <div style="margin-left:auto">
+              <button id="createIframe">Create Test Iframe</button>
+            </div>
+          </div>
+          <div id="iframeContainer" style="margin-top:8px"></div>
+        </section>
+
+        <section class="section">
+          <label>3) Dynamic content (adds inputs/contenteditable on demand)</label>
+          <div class="controls">
+            <button id="addInput">Add input[type=text]</button>
+            <button id="addTextarea">Add textarea</button>
+            <button id="addContent">Add contenteditable div</button>
+            <button id="addComplex">Add complex node (with nested inputs)</button>
+          </div>
+          <div id="dynamicArea" style="margin-top:8px"></div>
+        </section>
+
+        <section class="section">
+          <label>4) Sample phrases</label>
+          <div class="phrases">
+            <div class="samples">
+              <button class="sample" data-text="Hello, how are you?">Safe</button>
+              <button class="sample" data-text="You're amazing and helpful.">Compliment</button>
+              <button class="sample" data-text="You're stupid and an idiot">Mildly Toxic</button>
+              <button class="sample" data-text="I will hurt you!">Threat / Severe</button>
+              <button class="sample" data-text="This is a test with offensive language.">Offensive</button>
+            </div>
+            <div class="row small" style="margin-top:8px">
+              <button id="pasteSample">Paste selected into target (simulates paste)</button>
+              <button id="typeSample">Simulate typing into target</button>
+              <label class="muted" style="margin-left:auto">Typing speed: <input id="typeSpeed" type="range" min="10" max="200" value="60"/></label>
+            </div>
+          </div>
+        </section>
+
+        <section class="section">
+          <label>5) Paste / Drop tests</label>
+          <div class="muted">Try pasting text from the clipboard into the focused target; the log will capture paste events.</div>
+        </section>
+
+        <section class="section">
+          <label>6) Logs & event capture</label>
+          <div id="log" class="log"></div>
+        </section>
+      </main>
+
+      <aside class="card">
+        <h3 style="margin-top:0">Quick checklist</h3>
+        <ul>
+          <li>Focus different targets and type toxic phrases</li>
+          <li>Paste long content and observe extension behavior</li>
+          <li>Create dynamic inputs and confirm MutationObserver picks them up</li>
+          <li>Test shadow DOM and iframe inputs (extension should ignore cross-origin iframes)</li>
+        </ul>
+
+        <hr />
+
+        <h4 style="margin-bottom:6px">Selected phrase</h4>
+        <div id="selectedPhrase" class="muted">(none)</div>
+
+        <hr />
+
+        <h4 style="margin-bottom:6px">Notes</h4>
+        <div class="muted small">This page is designed to exercise common input types used by web apps (text inputs, textareas, contenteditable regions, shadow DOM inputs and iframes). When testing with the extension, ensure the content script is injected (look for a data attribute like <code>data-toxiguard-loaded</code> on the document element).</div>
+      </aside>
     </div>
 
-    <div class="test-section">
-      <h3>2. Textarea</h3>
-      <textarea
-        placeholder="Try typing or pasting toxic content here..."
-      ></textarea>
-    </div>
-
-    <div class="test-section">
-      <h3>3. Contenteditable Div (like Google Docs)</h3>
-      <div class="contenteditable" contenteditable="true">
-        Click here and start typing...
-      </div>
-    </div>
-
-    <div class="test-section">
-      <h3>4. Dynamic Content Test</h3>
-      <button onclick="addToxicContent()">Add Toxic Content</button>
-      <div id="dynamic-content"></div>
-    </div>
+    <footer class="muted">Toxic Shield — Test harness · Use with extension loaded in developer mode</footer>
 
     <script>
-      function addToxicContent() {
-        const toxicWords = [
-          "This is a test with bad words.",
-          "Try some offensive content here.",
-          "Testing toxic content detection.",
-        ];
-        const div = document.createElement("div");
-        div.textContent =
-          toxicWords[Math.floor(Math.random() * toxicWords.length)];
-        document.getElementById("dynamic-content").appendChild(div);
+      // Utility: logging
+      const logEl = document.getElementById('log');
+      function log(...args){
+        const ts = new Date().toISOString().slice(11,23);
+        logEl.innerText = `${ts} | ${args.map(a=>typeof a==='object'?JSON.stringify(a):a).join(' ')}\n` + logEl.innerText;
       }
+
+      // Elements
+      const testInput = document.getElementById('testInput');
+      const testTextarea = document.getElementById('testTextarea');
+      const testContent = document.getElementById('testContent');
+      const dynamicArea = document.getElementById('dynamicArea');
+      const targetSelect = document.getElementById('targetSelect');
+      const selectedPhraseEl = document.getElementById('selectedPhrase');
+
+      let lastDynamic = null;
+      let selectedPhrase = '';
+
+      // Attach basic event listeners to capture events from these elements
+      function attachLogging(el){
+        if(!el) return;
+        if(el.__tox_logger_attached) return;
+        ['input','keydown','keyup','paste','focus','blur'].forEach(evt=>{
+          el.addEventListener(evt,e=>{
+            log(`event:${evt}`, el.tagName.toLowerCase(), el.type||'', (e.clipboardData ? e.clipboardData.getData('text') : ''));
+          },{capture:false});
+        });
+        el.__tox_logger_attached = true;
+      }
+
+      [testInput,testTextarea,testContent].forEach(attachLogging);
+
+      // Samples selection
+      document.querySelectorAll('.sample').forEach(btn=>{
+        btn.addEventListener('click',()=>{
+          selectedPhrase = btn.dataset.text;
+          selectedPhraseEl.innerText = selectedPhrase;
+        });
+      });
+
+      // Paste sample into target (simulate paste event)
+      document.getElementById('pasteSample').addEventListener('click',()=>{
+        const target = getTargetElement();
+        if(!target){ log('No target found to paste'); return; }
+        pasteTextInto(target, selectedPhrase || document.querySelector('.sample').dataset.text);
+      });
+
+      // Simulate typing
+      document.getElementById('typeSample').addEventListener('click',()=>{
+        const text = selectedPhrase || document.querySelector('.sample').dataset.text;
+        simulateTypingInto(getTargetElement(), text, Number(document.getElementById('typeSpeed').value));
+      });
+
+      function getTargetElement(){
+        const sel = targetSelect.value;
+        if(sel === 'input') return testInput;
+        if(sel === 'textarea') return testTextarea;
+        if(sel === 'content') return testContent;
+        if(sel === 'shadow') return document.querySelector('#shadowHost input');
+        if(sel === 'iframe'){
+          const f = document.querySelector('#iframeContainer iframe');
+          if(!f) return null;
+          try{ return f.contentDocument.querySelector('input, textarea, [contenteditable]'); }catch(e){ return null; }
+        }
+        if(sel === 'dynamic') return lastDynamic;
+        return null;
+      }
+
+      document.getElementById('focusTarget').addEventListener('click',()=>{
+        const t = getTargetElement(); if(t && t.focus) t.focus(); log('focusTarget', !!t);
+      });
+
+      // Paste helper that dispatches paste event where possible
+      function pasteTextInto(target, text){
+        if(!target) return log('paste: no target');
+        // For contenteditable
+        if(target.isContentEditable){
+          target.focus();
+          document.execCommand('insertText', false, text);
+          const ev = new Event('input', {bubbles:true}); target.dispatchEvent(ev);
+          log('pasted into contenteditable', text);
+          return;
+        }
+        // For input/textarea
+        const start = target.selectionStart || 0;
+        const end = target.selectionEnd || start;
+        const val = (target.value||'');
+        const newVal = val.slice(0,start) + text + val.slice(end);
+        target.value = newVal;
+        target.selectionStart = target.selectionEnd = start + text.length;
+        target.dispatchEvent(new Event('input',{bubbles:true}));
+        log('pasted into input', text);
+      }
+
+      // Simulate typing (character by character)
+      async function simulateTypingInto(target, text, delayMs=60){
+        if(!target){ log('type: no target'); return; }
+        if(target.isContentEditable){
+          target.focus(); target.innerText = '';
+          for(let ch of text){
+            await new Promise(r=>setTimeout(r,delayMs));
+            document.execCommand('insertText', false, ch);
+            target.dispatchEvent(new Event('input',{bubbles:true}));
+          }
+        } else {
+          target.focus(); target.value = '';
+          for(let ch of text){
+            await new Promise(r=>setTimeout(r,delayMs));
+            target.value += ch;
+            target.dispatchEvent(new Event('input',{bubbles:true}));
+          }
+        }
+        log('typing finished', text);
+      }
+
+      // Dynamic element creators
+      document.getElementById('addInput').addEventListener('click',()=>{
+        const inp = document.createElement('input'); inp.type='text'; inp.placeholder='Dynamically added input'; inp.style.marginTop='8px';
+        dynamicArea.appendChild(inp); attachLogging(inp); lastDynamic = inp; log('added input');
+      });
+      document.getElementById('addTextarea').addEventListener('click',()=>{
+        const ta = document.createElement('textarea'); ta.placeholder='Dynamically added textarea'; ta.style.marginTop='8px';
+        dynamicArea.appendChild(ta); attachLogging(ta); lastDynamic = ta; log('added textarea');
+      });
+      document.getElementById('addContent').addEventListener('click',()=>{
+        const d = document.createElement('div'); d.contentEditable='true'; d.className='contenteditable'; d.innerText='Dynamically added contenteditable'; d.style.marginTop='8px';
+        dynamicArea.appendChild(d); attachLogging(d); lastDynamic = d; log('added contenteditable');
+      });
+      document.getElementById('addComplex').addEventListener('click',()=>{
+        const wrapper = document.createElement('div'); wrapper.style.marginTop='8px';
+        wrapper.innerHTML = `<label>Complex node</label><div><input type='text' placeholder='nested input'/></div>`;
+        dynamicArea.appendChild(wrapper);
+        attachLogging(wrapper.querySelector('input'));
+        lastDynamic = wrapper.querySelector('input'); log('added complex node');
+      });
+
+      // Shadow DOM
+      document.getElementById('createShadow').addEventListener('click',()=>{
+        const host = document.getElementById('shadowHost'); host.innerHTML = '';
+        const shadow = host.attachShadow({mode:'open'});
+        const inp = document.createElement('input'); inp.placeholder='Shadow DOM input'; shadow.appendChild(inp);
+        attachLogging(inp);
+        log('created shadow input');
+      });
+
+      // Iframe
+      document.getElementById('createIframe').addEventListener('click',()=>{
+        const container = document.getElementById('iframeContainer'); container.innerHTML = '';
+        const iframe = document.createElement('iframe'); iframe.style.width='100%'; iframe.style.height='120px';
+        container.appendChild(iframe);
+        const doc = iframe.contentDocument || iframe.contentWindow.document;
+        doc.open(); doc.write(`<body style="font-family:Arial;padding:8px"><input placeholder='iframe input' style='width:100%'/></body>`); doc.close();
+        try{ attachLogging(iframe.contentDocument.querySelector('input')); log('created iframe and attached logger (same-origin)'); }
+        catch(e){ log('iframe created (cross-origin or inaccessible for script)'); }
+      });
+
+      // Global: monitor DOM for newly added inputs and attach logger
+      const mo = new MutationObserver(muts=>{
+        muts.forEach(m=>{
+          m.addedNodes.forEach(node=>{
+            if(node.nodeType!==1) return;
+            if(node.matches && (node.matches('input[type="text"]') || node.matches('textarea') || node.isContentEditable)){
+              attachLogging(node); log('mutation: attached to newly added node', node.tagName);
+            }
+            // also scan descendants
+            node.querySelectorAll && node.querySelectorAll('input[type="text"], textarea, [contenteditable="true"]').forEach(el=>{ attachLogging(el); log('mutation: attached descendant', el.tagName); });
+          });
+        });
+      });
+      mo.observe(document.body,{childList:true,subtree:true});
+
+      // Capture capture-level events for testing that extension's content script receives input events
+      ['input','paste','keydown'].forEach(evt=>{
+        document.addEventListener(evt,e=>{
+          // annotate the doc for manual inspection
+          if(!document.documentElement.hasAttribute('data-test-events')) document.documentElement.setAttribute('data-test-events','true');
+          // basic log
+          // don't spam for every keydown
+          if(evt==='keydown') return;
+          log('document event', evt, e.type, e.target && (e.target.tagName||e.target.nodeName));
+        },{capture:false});
+      });
+
+      // Keep a visible hint if content script sets data-toxiguard-loaded
+      new MutationObserver(()=>{
+        if(document.documentElement.hasAttribute('data-toxiguard-loaded')){
+          log('content-script: data-toxiguard-loaded present');
+        }
+      }).observe(document.documentElement,{attributes:true});
+
+      // Clear log
+      document.getElementById('clearLog').addEventListener('click',()=>{ logEl.innerText=''; });
+
+      // Initialize: attach to dynamic elements already present
+      lastDynamic = null;
+
+      // Auto-select first sample
+      const first = document.querySelector('.sample'); if(first){ selectedPhrase = first.dataset.text; selectedPhraseEl.innerText = selectedPhrase; }
+
+      // Accessibility: keyboard shortcuts for convenience (F1-F3)
+      window.addEventListener('keydown', (e)=>{
+        if(e.key==='F1'){ e.preventDefault(); document.getElementById('typeSample').click(); }
+        if(e.key==='F2'){ e.preventDefault(); document.getElementById('pasteSample').click(); }
+        if(e.key==='F3'){ e.preventDefault(); document.getElementById('addInput').click(); }
+      });
+
     </script>
   </body>
 </html>

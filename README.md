@@ -1,270 +1,236 @@
-# 🛡️ ToxiGuard AI
+# 🛡️ Toxic Shield (ToxicGuard AI)
 
-> A smart, privacy-respecting browser extension that flags, explains, and optionally censors toxic language in real-time.
-
-ToxiGuard AI uses TensorFlow.js and the `toxicity` NLP model to detect harmful or offensive content while you're typing on any website.
+A privacy-forward browser extension that detects and optionally censors toxic language in real-time using TensorFlow.js and the `@tensorflow-models/toxicity` model.
 
 ---
 
-## 🚀 Features
+## Table of Contents
 
-- 🔍 **Real-time toxicity detection** in text inputs, textareas, and contenteditable elements
-- 🎯 **Fine-grain category controls** - Enable/disable specific toxicity types
-- 🧠 **Smart categorization** - Highlights specific toxicity categories (insult, threat, obscene, etc.)
-- 😶 **Visual feedback system** - Emoji indicators and border highlighting
-- ✅ **Auto-censor functionality** - Optionally replaces toxic content with asterisks
-- ⚙️ **Adjustable sensitivity** - Customizable detection threshold (0.1 - 1.0)
-- 🧰 **Advanced popup controls** - Toggle detection and configure all settings
-- ⌨️ **Keyboard shortcuts** - Alt+T to quickly toggle detection
-- 💾 **Persistent settings** - Your preferences are saved automatically
-- 🛡️ **Cross-browser compatible** - Works on Chrome, Edge, and Firefox (Manifest V3)
-- 🎨 **Modern UI** - Beautiful, intuitive interface with smooth animations
-
----
-
-## 🛠️ Installation
-
-1. Clone this repository or [Download ZIP](https://github.com/VKrishna04/ToxicGuard_AI/archive/main.zip)
-   ```powershell
-   git clone https://github.com/VKrishna04/ToxicGuard_AI.git
-   cd ToxicGuard_AI
-   ```
-
-2. Go to your browser's extensions page:
-   - **Chrome**: `chrome://extensions`
-   - **Edge**: `edge://extensions`
-   - **Firefox**: `about:debugging` → **This Firefox**
-
-3. Enable **Developer Mode** (top-right toggle)
-
-4. Click **Load unpacked** and select the `ToxicGuard_AI/` folder
-
-5. The extension icon should appear in your toolbar
+- [Project Overview](#project-overview)
+- [Quick Start (PowerShell)](#quick-start-powershell)
+- [Architecture & Diagrams](#architecture--diagrams)
+  - [Architecture Overview (Mermaid)](#architecture-overview-mermaid)
+  - [Detection Sequence (Mermaid)](#detection-sequence-mermaid)
+  - [Component Map (Mermaid)](#component-map-mermaid)
+  - [Developer: semantic_search workflow (Mermaid)](#developer-semantic_search-workflow-mermaid)
+- [Folder Structure](#folder-structure)
+- [Development & Validation](#development--validation)
+- [Contributing](#contributing)
+- [License](#license)
 
 ---
 
-## 💡 How It Works
+## Project Overview
+
+Toxic Shield (aka ToxicGuard AI) is a cross-browser Manifest V3 extension that:
+
+- Loads a local copy or CDN copy of TensorFlow.js and the toxicity model in content scripts.
+- Monitors text inputs, textareas and contenteditable elements for toxic content.
+- Highlights or auto-censors offensive content depending on user settings.
+- Exposes a popup UI for toggling detection and auto-censoring.
+
+Key files:
+
+- `manifest.json` — Extension registration and content script loading
+- `background.js` — Service worker (install defaults, injects content script, routes messages)
+- `content.js` — Detection engine loaded into web pages
+- `popup.html` / `popup.js` — Settings UI
+- `lib/tensorflow/*` — Optional local TFJS + toxicity model assets (fallback to CDN)
+- `test.html` — Local test harness for debugging
+
+
+## Quick Start (PowerShell)
+
+Clone, install (if needed), and load the extension in developer mode:
+
+```powershell
+# Clone the repo
+git clone https://github.com/Life-Experimentalists/ToxicGuard_AI.git ; cd ToxicGuard_AI
+
+# (Optional) Download local TFJS assets if you prefer offline usage
+node setup.js
+
+# Load the folder as an unpacked extension in your browser:
+# Chrome/Edge: open chrome://extensions and "Load unpacked"
+# Firefox: open about:debugging → This Firefox → Load Temporary Add-on
+```
+
+Notes: The above commands are PowerShell examples. When giving commands in Windows follow PowerShell syntax.
+
+---
+
+## Architecture & Diagrams
+
+### Architecture Overview (Mermaid)
 
 ```mermaid
-flowchart TD
-    A[User types into a text field] --> B[Content script detects input]
-    B --> C{Detection enabled?}
-    C -->|No| D[Skip processing]
-    C -->|Yes| E[Load TensorFlow.js model]
-    E --> F[Classify text with enabled categories]
-    F --> G{Toxic content detected?}
-    G -->|Yes| H[Show red border + tooltip]
-    G -->|No| I[Show clean state]
-    H --> J{Auto-censor enabled?}
-    J -->|Yes| K[Replace toxic words with ***]
-    J -->|No| L[Keep original text]
-    H --> M[Update emoji indicator to 😠]
-    I --> N[Update emoji indicator to 😊]
+flowchart LR
+  UI[User Interface / Page Inputs]
+  CS[content.js — Content Script]
+  MODEL[TensorFlow.js + @tensorflow-models/toxicity]
+  BG[background.js / Service Worker]
+  STORAGE[chrome.storage.local]
+  POPUP[popup.html / popup.js]
+
+  UI -->|input events| CS
+  CS -->|loads model| MODEL
+  CS -->|sends settings / telemetry| BG
+  BG -->|persists settings| STORAGE
+  POPUP -->|updates settings| BG
+  BG -->|broadcasts changes| CS
+  CS -->|visual feedback| UI
 ```
 
----
+Elements and single-line explanations:
 
-## 🧪 Testing the Extension
+- UI — The web page elements (input, textarea, contenteditable) that users interact with.
+- CS — `content.js`, injected into pages; observes inputs, debounces events and runs detection.
+- MODEL — TensorFlow.js runtime and `@tensorflow-models/toxicity` classifier performing predictions.
+- BG — `background.js`, service worker that manages defaults, messaging, and cross-tab sync.
+- STORAGE — `chrome.storage.local` where user preferences and thresholds are persisted.
+- POPUP — `popup.html / popup.js`, the extension settings UI that modifies preferences.
 
-1. **Open the test page**: Load `test.html` in your browser
-2. **Try these examples**:
 
-   **Safe content:**
-   - `Hello, how are you doing today?`
-   - `This is a great project, keep up the good work!`
-   - `I love learning new things about technology`
+### Detection Sequence (Mermaid)
 
-   **Toxic content:**
-   - `You're an idiot`
-   - `This is shit`
-   - `I hate you so much`
+```mermaid
+sequenceDiagram
+  participant User as User typing
+  participant CS as content.js
+  participant Model as Toxicity Model
+  participant BG as background.js
 
-3. **Watch for feedback**:
-   - 🔴 Red borders around toxic inputs
-   - 💬 Tooltips showing detected categories
-   - 😊/😠 Emoji indicator (bottom-right)
-   - ⭐ Auto-censoring (if enabled)
-
----
-
-## ⚙️ Settings & Controls
-
-### Main Controls
-- **🔘 Enable Detection** – Master on/off switch
-- **🔘 Auto Censor** – Replace toxic words with asterisks
-
-### Sensitivity Settings
-- **🎚️ Detection Threshold** – Adjustable from 0.1 (very sensitive) to 1.0 (less sensitive)
-- **Default**: 0.9 (recommended for balanced detection)
-
-### Toxicity Categories
-Fine-tune which types of content to detect:
-
-| Category              | Icon  | Description                                 |
-| --------------------- | ----- | ------------------------------------------- |
-| **Insults**           | 🤬    | Personal attacks and offensive name-calling |
-| **Obscene**           | 🔞    | Profanity and vulgar language               |
-| **Threats**           | ⚔️    | Threatening language and intimidation       |
-| **Identity Attacks**  | 🎯    | Attacks based on identity/group membership  |
-| **Sexually Explicit** | 🔞    | Sexual content and explicit material        |
-| **Severe Toxicity**   | 💀    | Extremely harmful and toxic content         |
-
-### Keyboard Shortcuts
-- **Alt + T** – Quick toggle detection on/off
-
----
-
-## 🧠 Technical Details
-
-### Model Information
-- **Framework**: [TensorFlow.js](https://js.tensorflow.org/)
-- **Model**: [`@tensorflow-models/toxicity`](https://github.com/tensorflow/tfjs-models/tree/master/toxicity)
-- **Architecture**: Pre-trained transformer model
-- **Categories**: 6 distinct toxicity types
-- **Performance**: ~500ms initial load, <100ms per classification
-
-### Architecture
-```
-📁 ToxicGuard_AI/
-├── 📄 manifest.json      # Extension configuration
-├── 📄 background.js      # Service worker (settings, shortcuts)
-├── 📄 content.js         # Main detection logic
-├── 📄 popup.html         # Settings interface
-├── 📄 popup.js           # Popup functionality
-├── 📄 test.html          # Testing page
-├── 📁 icons/             # Extension icons
-└── 📄 README.md          # This file
+  User->>CS: input event (debounced)
+  CS->>Model: classify(text)
+  Model-->>CS: predictions
+  alt toxic detected
+    CS->>CS: highlight or censor text
+    CS->>BG: send telemetry/settings update (optional)
+    CS-->>User: visual feedback (tooltip/border/censor)
+  else clean
+    CS-->>User: no action or subtle indicator
+  end
 ```
 
-### Browser Compatibility
-| Browser | Version | Status                         |
-| ------- | ------- | ------------------------------ |
-| Chrome  | 88+     | ✅ Full support                |
-| Edge    | 88+     | ✅ Full support                |
-| Firefox | 109+    | ✅ Full support                |
-| Safari  | -       | ❌ Not supported (Manifest V3) |
+Elements and single-line explanations:
 
----
+- User — Person typing or pasting text into page inputs.
+- CS — `content.js`, which debounces, prepares text, and runs classification.
+- Model — The toxicity classifier returning per-category predictions and probabilities.
+- BG — `background.js`, receives optional telemetry, stores settings, and broadcasts config.
 
-## 🔧 Development
 
-### Setup for Development
+### Component Map (Mermaid)
+
+```mermaid
+graph TD
+  M[manifest.json]
+  BG_FILE[background.js]
+  CS_FILE[content.js]
+  POPUP[popup.html / popup.js]
+  LIB[lib/tensorflow/* or CDN]
+  UI[page input elements]
+  TEST[test.html]
+  CSS[styles.css / popup styles]
+
+  M --> BG_FILE
+  M --> CS_FILE
+  M --> POPUP
+  CS_FILE --> LIB
+  CS_FILE --> UI
+  POPUP --> BG_FILE
+  BG_FILE --> STORAGE[chrome.storage.local]
+  TEST --> CS_FILE
+  CSS --> POPUP
+```
+
+Elements and single-line explanations:
+
+- manifest.json — Declares permissions, content scripts, and web_accessible_resources.
+- background.js — Bootstraps default settings, handles messaging and storage interactions.
+- content.js — Runs in page context, loads model and inspects user input for toxicity.
+- popup.html / popup.js — Settings UI to enable/disable detection and tweak thresholds.
+- lib/tensorflow/* — Local static assets (tf.min.js, toxicity.min.js) used when offline.
+- page input elements — Inputs, textareas, and contenteditable regions targeted by content.js.
+- test.html — Developer test harness to exercise inputs, shadow DOM, iframes and dynamic nodes.
+- styles.css — Shared styling for popup/test UI.
+
+
+### Developer: semantic_search workflow (Mermaid)
+
+```mermaid
+flowchart LR
+  Dev[Developer]
+  VS[VS Code Workspace]
+  SSEARCH[semantic_search]
+  RESULTS[Search Results]
+  OPEN[Open file / Jump to symbol]
+  EDIT[Edit & Test]
+
+  Dev --> VS
+  VS --> SSEARCH
+  SSEARCH --> RESULTS
+  RESULTS --> OPEN
+  OPEN --> EDIT
+  EDIT --> VS
+```
+
+Elements and single-line explanations:
+
+- Dev — The developer working on the project in their editor.
+- VS — Visual Studio Code workspace containing the extension source.
+- semantic_search — The code search utility used to quickly find symbols or code paths.
+- RESULTS — The matched files, lines or symbols returned by the search.
+- OPEN — Action to open the matched file and navigate to the exact line or symbol.
+- EDIT — Developer modifies code, then runs local tests or loads the extension for validation.
+
+
+## Folder Structure
+
+```
+ToxicGuard_AI/
+├─ background.js
+├─ content.js
+├─ popup.html
+├─ popup.js
+├─ manifest.json
+├─ manifest-v3.json (compat / alternate)
+├─ lib/
+│  └─ tensorflow/
+│     ├─ tf.min.js
+│     └─ toxicity.min.js
+├─ test.html
+├─ setup.js
+├─ script.js (shared dictionaries/helpers)
+├─ styles.css
+└─ icons/
+   ├─ icon16.png
+   └─ icon128.png
+```
+
+
+## Development & Validation
+
+- Use PowerShell commands shown in Quick Start.
+- `setup.js` will download TFJS assets into `lib/tensorflow` when run with Node.js.
+- Validate cross-browser manifest compatibility before publishing.
+
+Recommended workflow:
+
 ```powershell
-# Clone the repository
-git clone https://github.com/VKrishna04/ToxicGuard_AI.git
-cd ToxicGuard_AI
+# Download TFJS locally (optional)
+node setup.js
 
-# Install development dependencies (if any)
-# Currently uses CDN imports, no build process needed
-
-# Load in browser for testing
-# Follow installation steps above
+# Load in browser for local testing (use the browser developer extension UI)
+# Use test.html to exercise input scenarios
 ```
 
-### Testing
-1. **Load extension** in developer mode
-2. **Open test.html** for comprehensive testing
-3. **Check console** for debug information
-4. **Test on real websites** like Reddit, Twitter, etc.
 
-### Contributing
-1. Fork the repository
-2. Create a feature branch: `git checkout -b feature-name`
-3. Make your changes
-4. Test thoroughly
-5. Submit a pull request
+## Contributing
 
----
+Please follow the contribution guidelines in `.github/CONTRIBUTING.md`. Keep changes small, document behavior and test the extension on Chromium and Firefox.
 
-## 🚧 Future Enhancements
 
-- 🌍 **Multilingual support** - Detect toxicity in multiple languages
-- 🧑‍🎓 **Educational tooltips** - Explain why content is considered toxic
-- 📊 **Statistics dashboard** - Track toxicity patterns over time
-- 🔄 **AI-powered suggestions** - Suggest alternative, positive phrasing
-- 🌐 **Website-specific settings** - Custom rules for different sites
-- 📱 **Mobile browser support** - Extend to mobile browsers
-- 🤖 **Custom model training** - Fine-tune for specific use cases
-- 🔒 **Privacy enhancements** - Local-only processing options
+## License
 
----
-
-## 📊 Performance
-
-- **Model size**: ~25MB (loaded once per session)
-- **Memory usage**: ~50MB RAM
-- **Processing time**: 50-200ms per text classification
-- **Debounce delay**: 500ms (configurable)
-- **Battery impact**: Minimal (only processes on user input)
-
----
-
-## 🛡️ Privacy & Security
-
-- ✅ **No data collection** - Everything runs locally
-- ✅ **No external API calls** - Uses browser-native TensorFlow.js
-- ✅ **No user tracking** - No analytics or telemetry
-- ✅ **Open source** - Code is fully auditable
-- ✅ **Minimal permissions** - Only storage and notifications
-
----
-
-## 🖼️ Screenshots
-
-### Extension Popup
-![Popup Interface](icons/hero.png)
-
-### Detection in Action
-*Red borders appear around toxic content with category tooltips*
-
-### Settings Panel
-*Fine-grain controls for each toxicity category*
-
----
-
-## ⚖️ License
-
-This project is licensed under the [Apache 2.0 License](https://opensource.org/licenses/Apache-2.0).
-
-```
-Copyright 2025 &copy; VKrishna04
-
-Licensed under the Apache License, Version 2.0 (the "License");
-you may not use this file except in compliance with the License.
-You may obtain a copy of the License at
-
-    http://www.apache.org/licenses/LICENSE-2.0
-
-Unless required by applicable law or agreed to in writing, software
-distributed under the License is distributed on an "AS IS" BASIS,
-WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-```
-
----
-
-## 👨‍💻 Author
-
-**VKrishna04**
-- 🐙 GitHub: [@VKrishna04](https://github.com/VKrishna04)
-- 🏢 Organization: [Life-Experimentalists](https://github.com/orgs/Life-Experimentalists/repositories)
-- 🌐 Website: [VKrishna04.github.io](https://vkrishna04.github.io)
-- 🔗 Portfolio: [VKrishna04.me](https://vkrishna04.me)
-
----
-
-## 🙏 Acknowledgments
-
-- [TensorFlow.js Team](https://www.tensorflow.org/js) for the amazing ML framework
-- [Perspective API](https://perspectiveapi.com/) for inspiration
-- [Jigsaw](https://jigsaw.google.com/) for toxicity research
-- The open-source community for feedback and contributions
-
----
-
-<div align="center">
-
-**Made with ❤️ for a better internet**
-
-[⭐ Star this project](https://github.com/VKrishna04/ToxicGuard_AI) | [🐛 Report Issues](https://github.com/VKrishna04/ToxicGuard_AI/issues) | [💡 Request Features](https://github.com/VKrishna04/ToxicGuard_AI/issues/new)
-
-</div>
+This project uses the Apache-2.0 license for included TFJS assets (see individual files) and the repository's LICENSE file if present.
