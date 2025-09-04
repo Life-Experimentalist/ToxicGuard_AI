@@ -1,246 +1,472 @@
-// ToxiGuard AI Content Script - Cross-browser compatible
-(async () => {
-  // Firefox compatibility - use browser API if available, otherwise chrome
-  const extensionAPI = typeof browser !== "undefined" ? browser : chrome;
+// Initialize state
+let model = null;
+let isEnabled = true;
+let autoCensor = false;
 
-  console.log("🛡️ ToxiGuard AI Content Script Loading...");
+// Enhanced toxic patterns for context awareness
+const toxicPatterns = {
+  bodyShaming: [
+    /fat\s*(ass|pig|cow|slob)/i,
+    /ugly\s*(face|body|person)/i,
+    /(too|so)\s*(fat|skinny|ugly)/i,
+    /look\s*(horrible|disgusting)/i,
+    /whale|hambeast|fatty/i,
+  ],
+  racism: [
+    /black\s*(people|person|guy|girl)\s*(are|is)\s*(all|always|so)/i,
+    /white\s*power|white\s*supremacy/i,
+    /go\s*back\s*to\s*your\s*country/i,
+    /racial slurs and variations/i,
+  ],
+  sexism: [
+    /women\s*(are|belong|should)\s*/i,
+    /like\s*a\s*girl/i,
+    /make\s*me\s*a\s*sandwich/i,
+    /belong\s*in\s*the\s*kitchen/i,
+  ],
+  sexualHarassment: [
+    /send\s*(nudes|pics)/i,
+    /what\s*are\s*you\s*wearing/i,
+    /show\s*me\s*your/i,
+    /want\s*to\s*see\s*you/i,
+  ],
+  bullying: [
+    /kill\s*yourself/i,
+    /nobody\s*likes?\s*you/i,
+    /\\should\s*(die|leave|quit)/i,
+    /worthless|useless|pathetic/i,
+  ],
+  threats: [
+    /i\s*(will|gonna|going\s*to)\s*(kill|hurt|beat|find)/i,
+    /watch\s*your\s*back/i,
+    /you\s*(better|should)\s*be\s*afraid/i,
+  ],
+};
 
-  let settings = {
-    detectionEnabled: true,
-    autoCensor: false,
-    threshold: 0.9,
-    categories: {
-      insult: true,
-      obscene: true,
-      threat: true,
-      identity_attack: true,
-      sexually_explicit: true,
-      severe_toxicity: true,
-    },
-  };
+// Dictionary as fallback
+const toxicWords = {
+  hate: ["hate", "hatred", "hateful", "despise", "loathe", "detest"],
+  profanity: ["damn", "hell", "ass", "bastard", "goddamn", "bloody"],
+  discrimination: [
+    "racist",
+    "sexist",
+    "homophobic",
+    "bigot",
+    "supremacist",
+    "nazi",
+    "xenophobic",
+    "antisemitic",
+    "misogynist",
+    "chauvinist",
+  ],
+  threats: [
+    "kill",
+    "murder",
+    "hurt",
+    "destroy",
+    "eliminate",
+    "slaughter",
+    "attack",
+    "beat",
+    "punch",
+    "strangle",
+    "threaten",
+    "torture",
+  ],
+  insults: [
+    "stupid",
+    "idiot",
+    "dumb",
+    "moron",
+    "imbecile",
+    "retard",
+    "loser",
+    "worthless",
+    "useless",
+    "pathetic",
+    "incompetent",
+    "fool",
+    "dumbass",
+    "dimwit",
+    "numbskull",
+    "halfwit",
+  ],
+  severe: [
+    "fuck",
+    "shit",
+    "bitch",
+    "cunt",
+    "whore",
+    "slut",
+    "faggot",
+    "prick",
+    "pussy",
+    "cock",
+    "dickhead",
+    "motherfucker",
+  ],
+};
 
-  // Load user settings with error handling
-  const loadSettings = () => {
-    return new Promise((resolve) => {
-      try {
-        extensionAPI.storage.local.get(
-          ["detectionEnabled", "autoCensor", "threshold", "categories"],
-          (data) => {
-            if (extensionAPI.runtime.lastError) {
-              console.warn(
-                "ToxiGuard AI: Storage error:",
-                extensionAPI.runtime.lastError
-              );
-              resolve(); // Use defaults
-              return;
-            }
+const toxicityLevels = {
+  severe: 3,
+  hate: 3,
+  threats: 3,
+  discrimination: 3,
+  profanity: 2,
+  insults: 2,
+};
 
-            settings = {
-              ...settings,
-              ...data,
-              categories: {
-                ...settings.categories,
-                ...(data.categories || {}),
-              },
-            };
-            console.log("🛡️ ToxiGuard AI Settings loaded:", settings);
-            resolve();
-          }
-        );
-      } catch (error) {
-        console.warn("ToxiGuard AI: Failed to load settings:", error);
-        resolve(); // Use defaults
-      }
-    });
-  };
-
+// Load TensorFlow model
+async function loadModel() {
   try {
-    await loadSettings();
+    // Model will be loaded from local files as specified in manifest.json
+    model = await toxicity.load(0.7, [
+      "toxicity",
+      "severe_toxicity",
+      "identity_attack",
+      "insult",
+      "threat",
+      "sexual_explicit",
+      "obscene",
+      "flirtation",
+    ]);
+    console.log("Toxic Shield: ML Model loaded successfully");
+    return true;
   } catch (error) {
-    console.warn("ToxiGuard AI: Using default settings due to error:", error);
+    console.error("Toxic Shield: Error loading ML model:", error);
+    return false;
+  }
+}
+
+// Analyze text using ML model first, then fallback to dictionary
+async function analyzeText(text) {
+  if (!text || !text.trim()) {
+    return { isToxic: false, toxicWords: [], toxicityLevel: 0, categories: [] };
   }
 
-  // Listen for settings changes with error handling
-  try {
-    extensionAPI.storage.onChanged.addListener((changes) => {
-      console.log("🛡️ ToxiGuard AI Settings changed:", changes);
-      for (let key in changes) {
-        if (key === "categories") {
-          settings.categories = {
-            ...settings.categories,
-            ...changes[key].newValue,
-          };
-        } else {
-          settings[key] = changes[key].newValue;
+  const toxicWordsFound = [];
+  const detectedCategories = new Set();
+  let maxToxicityLevel = 0;
+  let isToxic = false;
+
+  // Check context patterns first
+  for (const [category, patterns] of Object.entries(toxicPatterns)) {
+    for (const pattern of patterns) {
+      if (pattern.test(text)) {
+        isToxic = true;
+        detectedCategories.add(category);
+        const matches = text.match(pattern);
+        if (matches) {
+          toxicWordsFound.push({
+            word: matches[0],
+            category: category,
+            level: 3,
+            context: true,
+          });
+          maxToxicityLevel = Math.max(maxToxicityLevel, 3);
         }
       }
-    });
-  } catch (error) {
-    console.warn("ToxiGuard AI: Could not set up settings listener:", error);
+    }
   }
 
-  console.log("🛡️ ToxiGuard AI Detection enabled:", settings.detectionEnabled);
+  // ML model analysis
+  if (model) {
+    try {
+      const predictions = await model.classify(text);
+      for (const prediction of predictions) {
+        if (prediction.results[0].match) {
+          isToxic = true;
+          const confidence = prediction.results[0].probabilities[1];
+          detectedCategories.add(prediction.label);
 
-  // Add immediate detection marker for test page
-  document.documentElement.setAttribute("data-toxiguard-loaded", "true");
-
-  if (!settings.detectionEnabled) {
-    console.log("🛡️ ToxiGuard AI Detection disabled, stopping execution");
-    return;
-  }
-
-  // Create status indicator
-  const emojiEl = document.createElement("div");
-  emojiEl.style.cssText = `
-    position: fixed;
-    bottom: 10px;
-    right: 10px;
-    font-size: 2rem;
-    z-index: 9999;
-    background: rgba(255,255,255,0.9);
-    border-radius: 50%;
-    width: 50px;
-    height: 50px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-    transition: all 0.3s ease;
-  `;
-  document.body.appendChild(emojiEl);
-
-  // Load TensorFlow.js and toxicity model
-  try {
-    await import("https://cdn.jsdelivr.net/npm/@tensorflow/tfjs");
-    const toxicity = await import(
-      "https://cdn.jsdelivr.net/npm/@tensorflow-models/toxicity"
-    );
-
-    // Load model with enabled categories only
-    const enabledCategories = Object.entries(settings.categories)
-      .filter(([_, enabled]) => enabled)
-      .map(([category, _]) => category);
-
-    const model = await toxicity.load(settings.threshold, enabledCategories);
-    console.log(
-      "✅ ToxiGuard AI model loaded with categories:",
-      enabledCategories
-    );
-
-    emojiEl.textContent = "😊";
-    emojiEl.title = "ToxiGuard AI - Ready";
-
-    const censorText = (text, toxicWords) => {
-      let censored = text;
-      toxicWords.forEach((word) => {
-        const regex = new RegExp(word, "gi");
-        censored = censored.replace(regex, "*".repeat(word.length));
-      });
-      return censored;
-    };
-
-    const checkToxicity = async (text, el) => {
-      if (!settings.detectionEnabled || !text.trim()) {
-        el.style.border = "";
-        el.title = "";
-        emojiEl.textContent = "😊";
-        return;
-      }
-
-      try {
-        const predictions = await model.classify([text]);
-        const toxicCategories = [];
-        const toxicWords = [];
-
-        predictions.forEach((prediction) => {
-          if (
-            prediction.results[0].match &&
-            settings.categories[prediction.label]
-          ) {
-            toxicCategories.push(prediction.label);
-            // Extract potential toxic words (simplified approach)
-            const words = text.split(/\s+/);
-            words.forEach((word) => {
-              if (word.length > 2 && !toxicWords.includes(word.toLowerCase())) {
-                toxicWords.push(word.toLowerCase());
-              }
+          // Extract potential toxic phrases based on model prediction
+          const phrases = extractToxicPhrases(text, prediction.label);
+          phrases.forEach((phrase) => {
+            toxicWordsFound.push({
+              word: phrase,
+              category: prediction.label,
+              level: confidence > 0.8 ? 3 : confidence > 0.6 ? 2 : 1,
+              confidence: Math.round(confidence * 100) + "%",
             });
-          }
-        });
-
-        const isToxic = toxicCategories.length > 0;
-
-        if (isToxic) {
-          el.style.border = "2px solid #ff4444";
-          el.style.borderRadius = "4px";
-          el.title = `⚠️ Detected: ${toxicCategories.join(", ")}`;
-          emojiEl.textContent = "😠";
-          emojiEl.title = `Toxic content detected: ${toxicCategories.join(
-            ", "
-          )}`;
-
-          // Auto-censor if enabled
-          if (settings.autoCensor && toxicWords.length > 0) {
-            const originalValue = el.value;
-            const censoredValue = censorText(originalValue, toxicWords);
-            if (originalValue !== censoredValue) {
-              el.value = censoredValue;
-              el.dispatchEvent(new Event("input", { bubbles: true }));
-            }
-          }
-        } else {
-          el.style.border = "";
-          el.title = "";
-          emojiEl.textContent = "😊";
-          emojiEl.title = "ToxiGuard AI - Content is clean";
+            maxToxicityLevel = Math.max(
+              maxToxicityLevel,
+              confidence > 0.8 ? 3 : confidence > 0.6 ? 2 : 1
+            );
+          });
         }
-      } catch (error) {
-        console.error("ToxiGuard AI error:", error);
-        emojiEl.textContent = "❌";
-        emojiEl.title = "ToxiGuard AI - Error";
       }
-    };
+    } catch (error) {
+      console.error("ML analysis error:", error);
+    }
+  }
 
-    const attachToInput = (el) => {
-      if (el.dataset.toxChecked) return;
-      el.dataset.toxChecked = "true";
-
-      let debounceTimer;
-      el.addEventListener("input", () => {
-        clearTimeout(debounceTimer);
-        debounceTimer = setTimeout(() => {
-          checkToxicity(el.value, el);
-        }, 500); // Debounce for performance
-      });
-
-      el.addEventListener("focus", () => {
-        if (el.value.trim()) {
-          checkToxicity(el.value, el);
+  // Dictionary check as fallback
+  if (!isToxic) {
+    const words = text.toLowerCase().split(/\b/);
+    words.forEach((word) => {
+      const cleanWord = word.trim();
+      if (cleanWord) {
+        for (const category in toxicWords) {
+          if (toxicWords[category].includes(cleanWord)) {
+            toxicWordsFound.push({
+              word: word,
+              category: category,
+              level: toxicityLevels[category] || 1,
+            });
+            detectedCategories.add(category);
+            maxToxicityLevel = Math.max(
+              maxToxicityLevel,
+              toxicityLevels[category] || 1
+            );
+            isToxic = true;
+          }
         }
-      });
-    };
+      }
+    });
+  }
 
-    const monitorInputs = () => {
-      const inputs = document.querySelectorAll(
-        "textarea, input[type='text'], [contenteditable='true']"
-      );
-      inputs.forEach(attachToInput);
-    };
+  return {
+    isToxic,
+    toxicWords: toxicWordsFound,
+    toxicityLevel: maxToxicityLevel,
+    categories: Array.from(detectedCategories),
+  };
+}
 
-    // Initial scan
-    monitorInputs();
+function extractToxicPhrases(text, category) {
+  const phrases = [];
+  const sentences = text.split(/[.!?]+/);
 
-    // Watch for new inputs
-    const observer = new MutationObserver(monitorInputs);
-    observer.observe(document.body, {
-      childList: true,
-      subtree: true,
-      attributes: true,
-      attributeFilter: ["contenteditable"],
+  sentences.forEach((sentence) => {
+    sentence = sentence.trim();
+    if (sentence) {
+      // Break into potential phrases
+      const words = sentence.split(/\s+/);
+      for (let i = 0; i < words.length; i++) {
+        // Check different phrase lengths (2-4 words)
+        for (let len = 2; len <= 4 && i + len <= words.length; len++) {
+          const phrase = words.slice(i, i + len).join(" ");
+          if (isLikelyToxic(phrase, category)) {
+            phrases.push(phrase);
+          }
+        }
+      }
+    }
+  });
+
+  return [...new Set(phrases)]; // Remove duplicates
+}
+
+function isLikelyToxic(phrase, category) {
+  // Category-specific phrase detection
+  const patterns = {
+    identity_attack:
+      /(you|they|those)\s*(people|guys|ones)|stereotype|typical/i,
+    sexual_explicit: /want|body|looking|sexy/i,
+    insult: /(you|they|he|she)\s*(are|is|look)\s*(so|very|really)/i,
+    threat: /(will|gonna|going|should|must|better)/i,
+    toxicity: /(hate|stupid|dumb|bad|terrible)/i,
+  };
+
+  return patterns[category] ? patterns[category].test(phrase) : false;
+}
+
+function censorText(text, toxicWords) {
+  let censoredText = text;
+  const words = new Set(toxicWords.map((tw) => tw.word.toLowerCase()));
+
+  const tokens = text.split(/(\b)/);
+  const censored = tokens.map((token) => {
+    if (words.has(token.toLowerCase())) {
+      return "*".repeat(token.length);
+    }
+    return token;
+  });
+
+  return censored.join("");
+}
+
+function showNotification(result) {
+  const existingNotif = document.querySelector(".toxic-shield-notification");
+  if (existingNotif) existingNotif.remove();
+
+  const notification = document.createElement("div");
+  notification.className = "toxic-shield-notification";
+
+  const levelText =
+    result.toxicityLevel === 3
+      ? "Severe"
+      : result.toxicityLevel === 2
+      ? "Moderate"
+      : "Mild";
+
+  notification.innerHTML = `
+        <div style="font-weight: bold;">Toxic Content Detected (${levelText})</div>
+        <div>Found ${result.toxicWords.length} toxic words</div>
+    `;
+
+  notification.style.cssText = `
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        background: ${result.toxicityLevel === 3 ? "#ff4444" : "#ff8c00"};
+        color: white;
+        padding: 12px 20px;
+        border-radius: 5px;
+        z-index: 10000;
+        font-family: Arial, sans-serif;
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+        animation: slideIn 0.5s ease-out;
+    `;
+
+  document.body.appendChild(notification);
+  setTimeout(() => notification.remove(), 3000);
+}
+
+// Initialize when content script loads
+async function init() {
+  try {
+    const modelLoaded = await loadModel();
+    if (!modelLoaded) {
+      console.warn("Toxic Shield: Running in dictionary-only mode");
+    }
+
+    // Load settings
+    chrome.storage.local.get(["enableDetection", "autoCensor"], (result) => {
+      isEnabled = result.enableDetection !== false;
+      autoCensor = result.autoCensor === true;
+      if (isEnabled) {
+        setupPageMonitoring();
+        // Initial page scan
+        scanPage();
+      }
     });
   } catch (error) {
-    console.error("Failed to load ToxiGuard AI:", error);
-    emojiEl.textContent = "❌";
-    emojiEl.title = "ToxiGuard AI - Failed to load";
+    console.error("Toxic Shield: Initialization error:", error);
   }
-})();
+}
+
+// Scan entire page for toxic content
+async function scanPage() {
+  if (!isEnabled) return;
+
+  // Get all text nodes
+  const walker = document.createTreeWalker(
+    document.body,
+    NodeFilter.SHOW_TEXT,
+    null,
+    false
+  );
+
+  let node;
+  while ((node = walker.nextNode())) {
+    if (node.textContent.trim()) {
+      const result = await analyzeText(node.textContent);
+      if (result.isToxic) {
+        showNotification(result);
+        if (autoCensor) {
+          node.textContent = censorText(node.textContent, result.toxicWords);
+        }
+      }
+    }
+  }
+
+  // Check input fields
+  const inputs = document.querySelectorAll(
+    'input[type="text"], textarea, [contenteditable="true"]'
+  );
+  inputs.forEach(async (input) => {
+    const text = input.value || input.textContent;
+    if (text) {
+      const result = await analyzeText(text);
+      if (result.isToxic) {
+        showNotification(result);
+        if (autoCensor) {
+          if (input.isContentEditable) {
+            input.textContent = censorText(text, result.toxicWords);
+          } else {
+            input.value = censorText(text, result.toxicWords);
+          }
+        }
+      }
+    }
+  });
+}
+
+// Monitor page content
+function setupPageMonitoring() {
+  // Monitor text input
+  document.addEventListener("input", async (e) => {
+    if (!isEnabled) return;
+
+    const target = e.target;
+    if (
+      target.isContentEditable ||
+      target.tagName === "TEXTAREA" ||
+      (target.tagName === "INPUT" && target.type === "text")
+    ) {
+      const text = target.isContentEditable ? target.textContent : target.value;
+      const result = await analyzeText(text);
+
+      if (result.isToxic) {
+        showNotification(result);
+        if (autoCensor) {
+          const censored = censorText(text, result.toxicWords);
+          if (target.isContentEditable) {
+            target.textContent = censored;
+          } else {
+            target.value = censored;
+          }
+        }
+      }
+    }
+  });
+
+  // Monitor DOM changes
+  const observer = new MutationObserver(async (mutations) => {
+    if (!isEnabled) return;
+
+    for (const mutation of mutations) {
+      for (const node of mutation.addedNodes) {
+        if (node.nodeType === Node.TEXT_NODE) {
+          const result = await analyzeText(node.textContent);
+          if (result.isToxic) {
+            showNotification(result);
+            if (autoCensor) {
+              node.textContent = censorText(
+                node.textContent,
+                result.toxicWords
+              );
+            }
+          }
+        }
+      }
+    }
+  });
+
+  observer.observe(document.body, {
+    childList: true,
+    subtree: true,
+    characterData: true,
+  });
+}
+
+// Start the extension
+init();
+
+// Listen for setting changes
+chrome.storage.onChanged.addListener((changes) => {
+  if (changes.enableDetection) {
+    isEnabled = changes.enableDetection.newValue;
+  }
+  if (changes.autoCensor) {
+    autoCensor = changes.autoCensor.newValue;
+  }
+});
+
+// Listen for messages from background script
+chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
+  if (request.action === "analyzePage") {
+    scanPage();
+  }
+});

@@ -100,8 +100,8 @@ flowchart TD
 ### Toxicity Categories
 Fine-tune which types of content to detect:
 
-| Category              | Icon | Description                                 |
-| --------------------- | ---- | ------------------------------------------- |
+| Category              | Icon  | Description                                 |
+| --------------------- | ----- | ------------------------------------------- |
 | **Insults**           | 🤬    | Personal attacks and offensive name-calling |
 | **Obscene**           | 🔞    | Profanity and vulgar language               |
 | **Threats**           | ⚔️    | Threatening language and intimidation       |
@@ -137,8 +137,8 @@ Fine-tune which types of content to detect:
 ```
 
 ### Browser Compatibility
-| Browser | Version | Status                        |
-| ------- | ------- | ----------------------------- |
+| Browser | Version | Status                         |
+| ------- | ------- | ------------------------------ |
 | Chrome  | 88+     | ✅ Full support                |
 | Edge    | 88+     | ✅ Full support                |
 | Firefox | 109+    | ✅ Full support                |
@@ -212,7 +212,7 @@ cd ToxicGuard_AI
 ## 🖼️ Screenshots
 
 ### Extension Popup
-![Popup Interface](icons/icon.png)
+![Popup Interface](icons/hero.png)
 
 ### Detection in Action
 *Red borders appear around toxic content with category tooltips*
@@ -227,7 +227,7 @@ cd ToxicGuard_AI
 This project is licensed under the [Apache 2.0 License](https://opensource.org/licenses/Apache-2.0).
 
 ```
-Copyright 2025 VKrishna04
+Copyright 2025 &copy; VKrishna04
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.

@@ -27,8 +27,29 @@
           </div>
         </div>
       </div>
-      <div id="status">Ready to protect</div>
+      <div class="input-section">
+        <textarea
+          id="userInput"
+          placeholder="Enter your text here..."
+        ></textarea>
+        <button id="checkText">Check Text</button>
+      </div>
+      <div id="result"></div>
     </div>
-    <script src="popup.js"></script>
+
+    <div id="popup" class="popup">
+      <div class="popup-content">
+        <h2>Toxic Content Detected!</h2>
+        <p id="toxicMessage"></p>
+        <div class="popup-buttons">
+          <button id="censorBtn">Censor</button>
+          <button id="keepBtn">Keep Original</button>
+        </div>
+      </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@tensorflow-models/toxicity"></script>
+    <script src="script.js"></script>
   </body>
 </html>
