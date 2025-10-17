@@ -1,55 +1,795 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Toxic Shield</title>
-    <link rel="stylesheet" href="styles.css" />
-  </head>
-  <body>
-    <div class="container">
-      <div class="main-controls">
-        <h1>Toxic Shield</h1>
-        <div class="controls">
-          <div class="control-item">
-            <label>Enable Detection</label>
-            <label class="switch">
-              <input type="checkbox" id="enableDetection" checked />
-              <span class="slider round"></span>
-            </label>
-          </div>
-          <div class="control-item">
-            <label>Auto Censor</label>
-            <label class="switch">
-              <input type="checkbox" id="autoCensor" />
-              <span class="slider round"></span>
-            </label>
-          </div>
-        </div>
-      </div>
-      <div class="input-section">
-        <textarea
-          id="userInput"
-          placeholder="Enter your text here..."
-        ></textarea>
-        <button id="checkText">Check Text</button>
-      </div>
-      <div id="result"></div>
-    </div>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ToxicGuard AI - Real-time Toxicity Detection Browser Extension</title>
+    <meta name="description" content="A privacy-forward browser extension that detects and censors toxic language in real-time using TensorFlow.js">
+    <meta name="keywords" content="toxicity detection, browser extension, AI, TensorFlow.js, content moderation">
+    <link rel="icon" type="image/png" sizes="32x32" href="icons/icon32.png">
+    <style>
+        :root {
+            --primary: #1a73e8;
+            --primary-dark: #1557b0;
+            --secondary: #34a853;
+            --danger: #ea4335;
+            --warning: #fbbc04;
+            --bg: #f8f9fa;
+            --text: #202124;
+            --text-light: #5f6368;
+            --card-bg: #ffffff;
+            --border: #e8eaed;
+            --shadow: 0 1px 3px rgba(60, 64, 67, 0.3);
+            --shadow-hover: 0 4px 8px rgba(60, 64, 67, 0.15);
+        }
 
-    <div id="popup" class="popup">
-      <div class="popup-content">
-        <h2>Toxic Content Detected!</h2>
-        <p id="toxicMessage"></p>
-        <div class="popup-buttons">
-          <button id="censorBtn">Censor</button>
-          <button id="keepBtn">Keep Original</button>
-        </div>
-      </div>
-    </div>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
 
-    <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@tensorflow-models/toxicity"></script>
-    <script src="script.js"></script>
-  </body>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: var(--text);
+            background-color: var(--bg);
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        /* Header */
+        header {
+            background: var(--card-bg);
+            padding: 1rem 0;
+            box-shadow: var(--shadow);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--primary);
+            text-decoration: none;
+        }
+
+        .logo img {
+            width: 40px;
+            height: 40px;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 2rem;
+            list-style: none;
+        }
+
+        .nav-links a {
+            color: var(--text);
+            text-decoration: none;
+            font-weight: 500;
+            transition: color 0.2s;
+        }
+
+        .nav-links a:hover {
+            color: var(--primary);
+        }
+
+        /* Hero Section */
+        .hero {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            color: white;
+            padding: 5rem 0;
+            text-align: center;
+        }
+
+        .hero h1 {
+            font-size: 3.5rem;
+            margin-bottom: 1rem;
+            font-weight: 700;
+        }
+
+        .hero p {
+            font-size: 1.3rem;
+            margin-bottom: 2rem;
+            opacity: 0.9;
+            max-width: 600px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .hero-buttons {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 600;
+            text-decoration: none;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .btn-primary {
+            background: var(--card-bg);
+            color: var(--primary);
+        }
+
+        .btn-primary:hover {
+            background: #f1f3f4;
+            transform: translateY(-2px);
+        }
+
+        .btn-secondary {
+            background: transparent;
+            color: white;
+            border: 2px solid white;
+        }
+
+        .btn-secondary:hover {
+            background: white;
+            color: var(--primary);
+        }
+
+        /* Features Section */
+        .features {
+            padding: 5rem 0;
+        }
+
+        .section-title {
+            text-align: center;
+            font-size: 2.5rem;
+            margin-bottom: 3rem;
+            font-weight: 700;
+        }
+
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+        }
+
+        .feature-card {
+            background: var(--card-bg);
+            padding: 2rem;
+            border-radius: 12px;
+            box-shadow: var(--shadow);
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .feature-card:hover {
+            transform: translateY(-4px);
+            box-shadow: var(--shadow-hover);
+        }
+
+        .feature-icon {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+        }
+
+        .feature-card h3 {
+            font-size: 1.5rem;
+            margin-bottom: 1rem;
+            color: var(--primary);
+        }
+
+        /* Demo Section */
+        .demo {
+            background: var(--card-bg);
+            padding: 5rem 0;
+        }
+
+        .demo-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 3rem;
+            align-items: center;
+        }
+
+        .demo-content h2 {
+            font-size: 2.5rem;
+            margin-bottom: 1.5rem;
+            color: var(--primary);
+        }
+
+        .demo-content p {
+            font-size: 1.1rem;
+            color: var(--text-light);
+            margin-bottom: 2rem;
+        }
+
+        .demo-visual {
+            background: var(--bg);
+            padding: 2rem;
+            border-radius: 12px;
+            border: 2px solid var(--border);
+        }
+
+        .demo-input {
+            width: 100%;
+            padding: 1rem;
+            border: 2px solid var(--border);
+            border-radius: 8px;
+            font-size: 1rem;
+            margin-bottom: 1rem;
+            transition: border-color 0.2s;
+        }
+
+        .demo-input:focus {
+            outline: none;
+            border-color: var(--primary);
+        }
+
+        .demo-input.toxic {
+            border-color: var(--danger);
+            background: #fef7f7;
+        }
+
+        .demo-result {
+            padding: 1rem;
+            border-radius: 8px;
+            margin-top: 1rem;
+            font-weight: 600;
+        }
+
+        .result-safe {
+            background: #e8f5e8;
+            color: var(--secondary);
+            border: 1px solid var(--secondary);
+        }
+
+        .result-toxic {
+            background: #fde7e7;
+            color: var(--danger);
+            border: 1px solid var(--danger);
+        }
+
+        /* Enhanced extension status indicator */
+        #extensionStatus {
+            transition: all 0.3s ease;
+        }
+
+        #extensionStatus.loaded {
+            background: #e8f5e8;
+            color: var(--secondary);
+            border: 1px solid var(--secondary);
+        }
+
+        #extensionStatus.not-loaded {
+            background: #fff3cd;
+            color: #856404;
+            border: 1px solid #ffc107;
+        }
+
+        #extensionStatus.checking {
+            background: #e3f2fd;
+            color: #1976d2;
+            border: 1px solid #64b5f6;
+        }
+
+        /* Stats Section */
+        .stats {
+            padding: 4rem 0;
+            background: var(--primary);
+            color: white;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 2rem;
+            text-align: center;
+        }
+
+        .stat-item h3 {
+            font-size: 3rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .stat-item p {
+            font-size: 1.1rem;
+            opacity: 0.9;
+        }
+
+        /* Installation Section */
+        .installation {
+            padding: 5rem 0;
+        }
+
+        .install-steps {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 2rem;
+            margin-top: 3rem;
+        }
+
+        .step {
+            background: var(--card-bg);
+            padding: 2rem;
+            border-radius: 12px;
+            box-shadow: var(--shadow);
+            text-align: center;
+        }
+
+        .step-number {
+            background: var(--primary);
+            color: white;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            margin: 0 auto 1rem;
+        }
+
+        /* Footer */
+        footer {
+            background: var(--text);
+            color: white;
+            padding: 3rem 0 1rem;
+        }
+
+        .footer-content {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        .footer-section h3 {
+            margin-bottom: 1rem;
+            color: var(--primary);
+        }
+
+        .footer-section a {
+            color: #ccc;
+            text-decoration: none;
+            display: block;
+            margin-bottom: 0.5rem;
+        }
+
+        .footer-section a:hover {
+            color: white;
+        }
+
+        .footer-bottom {
+            text-align: center;
+            padding-top: 2rem;
+            border-top: 1px solid #444;
+            color: #ccc;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .hero h1 {
+                font-size: 2.5rem;
+            }
+
+            .hero p {
+                font-size: 1.1rem;
+            }
+
+            .demo-container {
+                grid-template-columns: 1fr;
+            }
+
+            .nav-links {
+                display: none;
+            }
+        }
+
+        /* Accessibility */
+        @media (prefers-reduced-motion: reduce) {
+            * {
+                animation-duration: 0.01ms !important;
+                animation-iteration-count: 1 !important;
+                transition-duration: 0.01ms !important;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <nav class="container">
+            <a href="#" class="logo">
+                <img src="icons/icon48.png" alt="ToxicGuard AI Logo">
+                ToxicGuard AI
+            </a>
+            <ul class="nav-links">
+                <li><a href="#features">Features</a></li>
+                <li><a href="#demo">Demo</a></li>
+                <li><a href="#installation">Install</a></li>
+                <li><a href="test.html" target="_blank">Live Test</a></li>
+                <li><a href="https://github.com/Life-Experimentalists/ToxicGuard_AI" target="_blank">GitHub</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <main>
+        <section class="hero">
+            <div class="container">
+                <h1>🛡️ ToxicGuard AI</h1>
+                <p>Real-time toxicity detection and censoring for a safer web experience. Powered by TensorFlow.js and machine learning.</p>
+                <div class="hero-buttons">
+                    <a href="test.html" class="btn btn-primary" target="_blank">
+                        🔬 Try Live Demo
+                    </a>
+                    <a href="https://github.com/Life-Experimentalists/ToxicGuard_AI" class="btn btn-secondary" target="_blank">
+                        📂 View Source
+                    </a>
+                </div>
+            </div>
+        </section>
+
+        <section id="features" class="features">
+            <div class="container">
+                <h2 class="section-title">Powerful Features</h2>
+                <div class="features-grid">
+                    <div class="feature-card">
+                        <div class="feature-icon">🧠</div>
+                        <h3>AI-Powered Detection</h3>
+                        <p>Uses TensorFlow.js and the @tensorflow-models/toxicity model to detect harmful content with high accuracy across multiple categories.</p>
+                    </div>
+                    <div class="feature-card">
+                        <div class="feature-icon">⚡</div>
+                        <h3>Real-Time Processing</h3>
+                        <p>Instant feedback as you type with debounced input monitoring and efficient DOM observation for dynamic content.</p>
+                    </div>
+                    <div class="feature-card">
+                        <div class="feature-icon">🔒</div>
+                        <h3>Privacy First</h3>
+                        <p>All processing happens locally in your browser. No data is sent to external servers, ensuring complete privacy.</p>
+                    </div>
+                    <div class="feature-card">
+                        <div class="feature-icon">🎛️</div>
+                        <h3>Customizable Settings</h3>
+                        <p>Adjust detection sensitivity, enable auto-censoring, and configure toxicity categories to match your preferences.</p>
+                    </div>
+                    <div class="feature-card">
+                        <div class="feature-icon">🌐</div>
+                        <h3>Cross-Browser Support</h3>
+                        <p>Works seamlessly across Chrome, Firefox, and Edge with Manifest V3 compatibility and webextension-polyfill.</p>
+                    </div>
+                    <div class="feature-card">
+                        <div class="feature-icon">🎯</div>
+                        <h3>Smart Targeting</h3>
+                        <p>Monitors text inputs, textareas, and contenteditable elements with support for dynamic content and shadow DOM.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="demo" class="demo">
+            <div class="container">
+                <div class="demo-container">
+                    <div class="demo-content">
+                        <h2>See It In Action</h2>
+                        <p>Experience real-time toxicity detection with visual feedback. The extension provides immediate visual cues when potentially harmful content is detected.</p>
+                        <a href="test.html" class="btn btn-primary" target="_blank">
+                            🧪 Open Full Test Suite
+                        </a>
+                    </div>
+                    <div class="demo-visual">
+                        <h3>Interactive Demo</h3>
+                        <div id="extensionStatus" style="margin-bottom: 1rem; padding: 0.75rem; border-radius: 6px; font-size: 0.9rem; display: none;">
+                            <span id="statusIcon"></span>
+                            <span id="statusText"></span>
+                        </div>
+                        <p>Try typing in the input below to test detection:</p>
+                        <input type="text" class="demo-input" placeholder="Type something here to test detection..." id="demoInput">
+                        <div id="demoResult" class="demo-result" style="display: none;">
+                            <span id="resultText"></span>
+                        </div>
+                        <div style="margin-top: 1rem; font-size: 0.85rem; color: var(--text-light);">
+                            <strong>💡 Tips:</strong><br>
+                            • With extension: Real-time AI detection with visual feedback<br>
+                            • Without extension: Basic demo mode with limited detection<br>
+                            • Try words like "hate", "stupid", or "threat" to test detection
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="stats">
+            <div class="container">
+                <div class="stats-grid">
+                    <div class="stat-item">
+                        <h3>7+</h3>
+                        <p>Toxicity Categories Detected</p>
+                    </div>
+                    <div class="stat-item">
+                        <h3>3</h3>
+                        <p>Major Browsers Supported</p>
+                    </div>
+                    <div class="stat-item">
+                        <h3>100%</h3>
+                        <p>Local Processing</p>
+                    </div>
+                    <div class="stat-item">
+                        <h3>Real-time</h3>
+                        <p>Instant Detection</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="installation" class="installation">
+            <div class="container">
+                <h2 class="section-title">Easy Installation</h2>
+                <div class="install-steps">
+                    <div class="step">
+                        <div class="step-number">1</div>
+                        <h3>Download Extension</h3>
+                        <p>Clone or download the extension from our GitHub repository</p>
+                    </div>
+                    <div class="step">
+                        <div class="step-number">2</div>
+                        <h3>Enable Developer Mode</h3>
+                        <p>Go to your browser's extensions page and enable Developer Mode</p>
+                    </div>
+                    <div class="step">
+                        <div class="step-number">3</div>
+                        <h3>Load Extension</h3>
+                        <p>Click "Load unpacked" and select the extension folder</p>
+                    </div>
+                    <div class="step">
+                        <div class="step-number">4</div>
+                        <h3>Start Protecting</h3>
+                        <p>The extension is now active and protecting your browsing experience</p>
+                    </div>
+                </div>
+                <div style="text-align: center; margin-top: 3rem;">
+                    <h3>Developer Setup (PowerShell)</h3>
+                    <div style="background: var(--text); color: #00ff00; padding: 1.5rem; border-radius: 8px; font-family: monospace; text-align: left; margin-top: 1rem; overflow-x: auto;">
+# Clone the repository<br>
+git clone https://github.com/Life-Experimentalists/ToxicGuard_AI.git<br>
+cd ToxicGuard_AI<br><br>
+# Optional: Download local TensorFlow assets<br>
+node setup.js<br><br>
+# Load the folder as unpacked extension in browser
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer>
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-section">
+                    <h3>ToxicGuard AI</h3>
+                    <a href="#features">Features</a>
+                    <a href="#demo">Demo</a>
+                    <a href="#installation">Installation</a>
+                    <a href="test.html" target="_blank">Live Test Page</a>
+                </div>
+                <div class="footer-section">
+                    <h3>Developer</h3>
+                    <a href="https://github.com/VKrishna04" target="_blank">VKrishna04</a>
+                    <a href="https://vkrishna04.github.io" target="_blank">Website</a>
+                    <a href="https://github.com/Life-Experimentalists" target="_blank">Organization</a>
+                </div>
+                <div class="footer-section">
+                    <h3>Resources</h3>
+                    <a href="https://github.com/Life-Experimentalists/ToxicGuard_AI" target="_blank">GitHub Repository</a>
+                    <a href="https://github.com/Life-Experimentalists/ToxicGuard_AI/issues" target="_blank">Report Issues</a>
+                    <a href="https://github.com/Life-Experimentalists/ToxicGuard_AI/blob/main/README.md" target="_blank">Documentation</a>
+                </div>
+                <div class="footer-section">
+                    <h3>Technology</h3>
+                    <a href="https://www.tensorflow.org/js" target="_blank">TensorFlow.js</a>
+                    <a href="https://developer.mozilla.org/en-US/docs/Mozilla/Add-ons/WebExtensions" target="_blank">WebExtensions</a>
+                    <a href="https://developer.chrome.com/docs/extensions/mv3/" target="_blank">Manifest V3</a>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2025 ToxicGuard AI by VKrishna04. Open source project for safer web browsing.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // Simple demo functionality (works when extension is installed)
+        document.addEventListener('DOMContentLoaded', function() {
+            const demoInput = document.getElementById('demoInput');
+            const demoResult = document.getElementById('demoResult');
+            const resultText = document.getElementById('resultText');
+            const extensionStatus = document.getElementById('extensionStatus');
+            const statusIcon = document.getElementById('statusIcon');
+            const statusText = document.getElementById('statusText');
+
+            if (demoInput) {
+                let extensionCheckTimeout;
+                let isExtensionLoaded = false;
+
+                // Function to check if extension is loaded
+                function checkExtensionStatus() {
+                    isExtensionLoaded = document.body.hasAttribute('data-toxiguard-loaded') ||
+                                      document.documentElement.hasAttribute('data-toxiguard-loaded');
+                    return isExtensionLoaded;
+                }
+
+                // Update extension status display
+                function updateExtensionStatus() {
+                    if (!extensionStatus) return;
+
+                    extensionStatus.style.display = 'block';
+
+                    if (isExtensionLoaded) {
+                        extensionStatus.className = 'loaded';
+                        statusIcon.textContent = '✅';
+                        statusText.textContent = 'ToxicGuard AI extension detected and active';
+                        demoInput.style.borderColor = 'var(--secondary)';
+                    } else {
+                        extensionStatus.className = 'not-loaded';
+                        statusIcon.textContent = '💡';
+                        statusText.innerHTML = 'Extension not detected - <a href="#installation" style="color: inherit; text-decoration: underline;">install it</a> for AI-powered detection';
+                        demoInput.style.borderColor = '';
+                    }
+                }
+
+                // Initial check and periodic rechecking
+                function periodicExtensionCheck() {
+                    const wasLoaded = isExtensionLoaded;
+                    checkExtensionStatus();
+                    updateExtensionStatus();
+
+                    if (!wasLoaded && isExtensionLoaded) {
+                        // Extension just loaded - clear any demo messages
+                        updateDemoStatus('extension_loaded');
+                    }
+                }
+
+                // Update demo status display
+                function updateDemoStatus(status) {
+                    demoResult.style.display = 'block';
+
+                    switch(status) {
+                        case 'extension_loaded':
+                            demoResult.className = 'demo-result result-safe';
+                            resultText.innerHTML = '🎉 Extension loaded! Try typing to see real-time AI detection.';
+                            setTimeout(() => {
+                                if (demoInput.value.length === 0) {
+                                    demoResult.style.display = 'none';
+                                }
+                            }, 4000);
+                            break;
+                        case 'basic_safe':
+                            demoResult.className = 'demo-result result-safe';
+                            resultText.innerHTML = isExtensionLoaded ?
+                                '😊 Content appears safe' :
+                                '✅ Content appears safe (basic demo - install extension for AI detection)';
+                            break;
+                        case 'basic_toxic':
+                            demoResult.className = 'demo-result result-toxic';
+                            resultText.innerHTML = isExtensionLoaded ?
+                                '⚠️ Potentially toxic content detected' :
+                                '⚠️ Potentially toxic content detected (basic demo - install extension for AI detection)';
+                            break;
+                    }
+                }
+
+                // Initial extension check
+                setTimeout(periodicExtensionCheck, 100);
+
+                // Periodic check for extension loading (every 2 seconds for first 10 seconds)
+                let checkCount = 0;
+                const checkInterval = setInterval(() => {
+                    periodicExtensionCheck();
+                    checkCount++;
+                    if (checkCount >= 5 || isExtensionLoaded) {
+                        clearInterval(checkInterval);
+                    }
+                }, 2000);
+
+                // Enhanced input handler with extension detection
+                demoInput.addEventListener('input', function() {
+                    const text = this.value.toLowerCase();
+                    checkExtensionStatus(); // Check extension status on each input
+
+                    if (text.length > 0) {
+                        // Basic toxic word detection (fallback when extension isn't installed)
+                        const basicToxicWords = ['hate', 'stupid', 'idiot', 'kill', 'die', 'hurt', 'threat', 'damn', 'fuck'];
+                        const hasToxicWords = basicToxicWords.some(word => text.includes(word));
+
+                        if (hasToxicWords) {
+                            updateDemoStatus('basic_toxic');
+                        } else {
+                            updateDemoStatus('basic_safe');
+                        }
+
+                        // If extension is loaded, let it handle the real detection
+                        // The extension will override our basic demo feedback
+                        if (isExtensionLoaded) {
+                            // Add a small delay to let extension process first
+                            setTimeout(() => {
+                                // Check if extension added its own visual indicators
+                                const hasExtensionFeedback = this.style.borderColor === 'rgb(234, 67, 53)' ||
+                                                            this.classList.contains('toxic-detected') ||
+                                                            document.querySelector('.toxic-shield-notification');
+
+                                if (hasExtensionFeedback) {
+                                    // Extension is providing feedback, hide our basic demo
+                                    demoResult.style.display = 'none';
+                                }
+                            }, 200);
+                        }
+                    } else {
+                        demoResult.style.display = 'none';
+                    }
+                });
+
+                // Focus handler to show current status
+                demoInput.addEventListener('focus', function() {
+                    checkExtensionStatus();
+                    updateExtensionStatus();
+                });
+            }
+
+            // Smooth scrolling for navigation links
+            document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+                anchor.addEventListener('click', function (e) {
+                    e.preventDefault();
+                    const target = document.querySelector(this.getAttribute('href'));
+                    if (target) {
+                        target.scrollIntoView({
+                            behavior: 'smooth',
+                            block: 'start'
+                        });
+                    }
+                });
+            });
+
+            // Animate stats on scroll
+            const observerOptions = {
+                threshold: 0.5,
+                rootMargin: '0px 0px -100px 0px'
+            };
+
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.style.opacity = '1';
+                        entry.target.style.transform = 'translateY(0)';
+                    }
+                });
+            }, observerOptions);
+
+            // Observe feature cards
+            document.querySelectorAll('.feature-card').forEach(card => {
+                card.style.opacity = '0';
+                card.style.transform = 'translateY(20px)';
+                card.style.transition = 'opacity 0.6s ease, transform 0.6s ease';
+                observer.observe(card);
+            });
+        });
+    </script>
+</body>
 </html>
