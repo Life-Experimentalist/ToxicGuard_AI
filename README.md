@@ -6,17 +6,19 @@ A privacy-forward browser extension that detects and optionally censors toxic la
 
 ## Table of Contents
 
-- [Project Overview](#project-overview)
-- [Quick Start (PowerShell)](#quick-start-powershell)
-- [Architecture & Diagrams](#architecture--diagrams)
-  - [Architecture Overview (Mermaid)](#architecture-overview-mermaid)
-  - [Detection Sequence (Mermaid)](#detection-sequence-mermaid)
-  - [Component Map (Mermaid)](#component-map-mermaid)
-  - [Developer: semantic_search workflow (Mermaid)](#developer-semantic_search-workflow-mermaid)
-- [Folder Structure](#folder-structure)
-- [Development & Validation](#development--validation)
-- [Contributing](#contributing)
-- [License](#license)
+- [🛡️ Toxic Shield (ToxicGuard AI)](#️-toxic-shield-toxicguard-ai)
+  - [Table of Contents](#table-of-contents)
+  - [Project Overview](#project-overview)
+  - [Quick Start (PowerShell)](#quick-start-powershell)
+  - [Architecture \& Diagrams](#architecture--diagrams)
+    - [Architecture Overview (Mermaid)](#architecture-overview-mermaid)
+    - [Detection Sequence (Mermaid)](#detection-sequence-mermaid)
+    - [Component Map (Mermaid)](#component-map-mermaid)
+    - [Developer: semantic\_search workflow (Mermaid)](#developer-semantic_search-workflow-mermaid)
+  - [Folder Structure](#folder-structure)
+  - [Development \& Validation](#development--validation)
+  - [Contributing](#contributing)
+  - [License](#license)
 
 ---
 
@@ -231,6 +233,6 @@ node setup.js
 Please follow the contribution guidelines in `.github/CONTRIBUTING.md`. Keep changes small, document behavior and test the extension on Chromium and Firefox.
 
 
-## License
+## [License](LICENSE.md)
 
 This project uses the Apache-2.0 license for included TFJS assets (see individual files) and the repository's LICENSE file if present.

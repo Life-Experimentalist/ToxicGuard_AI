@@ -174,7 +174,7 @@ Contributors will be recognized in:
 - Release notes
 - Project documentation
 
-## 📜 License
+## 📜 [License](../LICENSE.md)
 
 By contributing to ToxicGuard AI, you agree that your contributions will be licensed under the Apache 2.0 License.
 

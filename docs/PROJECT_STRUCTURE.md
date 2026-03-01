@@ -52,7 +52,7 @@ ToxicGuard_AI/
 ├── 📄 background.js            # Extension service worker
 ├── 📄 content.js               # Detection engine (main logic)
 ├── 📄 index.html               # GitHub Pages landing page
-├── 📄 LICENSE                  # Apache 2.0 License
+├── 📄 LICENSE.md                  # Apache 2.0 License
 ├── 📄 manifest.json            # Extension manifest (Manifest V3)
 ├── 📄 package.json             # npm configuration
 ├── 📄 package-lock.json        # npm lock file

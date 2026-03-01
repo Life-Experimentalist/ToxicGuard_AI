@@ -123,7 +123,7 @@ Compress-Archive -Path * -DestinationPath "ToxicGuard_AI_Firefox.zip" -Force
 - **Support Email:** Your email
 - **Support Website:** GitHub repo URL
 - **Homepage:** GitHub Pages URL
-- **License:** MIT License
+- **License:** Apache 2.0 License
 
 ### Step 5: Listing Information
 

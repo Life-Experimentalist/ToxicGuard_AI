@@ -207,7 +207,8 @@ to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
       same "printed page" as the copyright notice for easier
       identification within third-party archives.
 
-   Copyright 2025 VKrishna04 & Contributors (Life-Experimentalist)
+   Copyright 2025  [VKrishna04](https://github.com/VKrishna04) & [Jayanth-0703](https://github.com/Jayanth-0703)
+
 
    Licensed under the Apache License, Version 2.0 (the "License");
    you may not use this file except in compliance with the License.

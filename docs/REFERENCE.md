@@ -16,7 +16,7 @@
 | `QUICKSTART.md`   | New user onboarding guide      |
 | `PUBLISHING.md`   | Browser store submission guide |
 | `DEPLOYMENT.md`   | GitHub Pages deployment steps  |
-| `LICENSE`         | MIT License terms              |
+| `LICENSE.md`      | Apache 2.0 License terms       |
 
 ### 🎨 Design Improvements
 - ✅ Gradient hero section with pattern overlay
@@ -207,15 +207,15 @@ git push origin main
 
 ## 📊 Project Status
 
-| Aspect                | Status              |
-| --------------------- | ------------------- |
-| **Code Quality**      | ✅ Production Ready  |
-| **Documentation**     | ✅ Complete          |
-| **UI/UX**             | ✅ Modern & Polished |
-| **Contributors**      | ✅ Properly Credited |
-| **Publishing Guides** | ✅ Comprehensive     |
-| **Deployment Docs**   | ✅ Step-by-step      |
-| **License**           | ✅ MIT License       |
+| Aspect                | Status               |
+| --------------------- | -------------------- |
+| **Code Quality**      | ✅ Production Ready   |
+| **Documentation**     | ✅ Complete           |
+| **UI/UX**             | ✅ Modern & Polished  |
+| **Contributors**      | ✅ Properly Credited  |
+| **Publishing Guides** | ✅ Comprehensive      |
+| **Deployment Docs**   | ✅ Step-by-step       |
+| **License**           | ✅ Apache 2.0 License |
 
 ---
 
@@ -240,7 +240,7 @@ git push origin main
 
 **Last Updated:** October 17, 2025
 **Version:** 1.0.0
-**License:** MIT
+**License:** Apache 2.0
 
 ---
 

@@ -95,7 +95,7 @@ The project now uses Apache License 2.0 instead of MIT, providing:
 - Better compatibility with corporate use
 - Explicit grant of patent rights
 
-See [LICENSE](./LICENSE) for full terms.
+See [LICENSE](../LICENSE.md) for full terms.
 
 ## 📦 Package Structure
 
@@ -329,11 +329,11 @@ The build script automatically uses this version for:
 
 Copyright 2025 VKrishna04 & Contributors (Life-Experimentalist)
 
-Licensed under the Apache License, Version 2.0. See [LICENSE](./LICENSE) for details.
+Licensed under the Apache License, Version 2.0. See [LICENSE](../LICENSE.md) for details.
 
 ## 🤝 Contributing
 
-See [CONTRIBUTING.md](./CONTRIBUTING.md) for:
+See [CONTRIBUTING.md](../.github/CONTRIBUTING.md) for:
 - Development setup
 - Code style guidelines
 - Commit message format
@@ -355,4 +355,4 @@ See [CONTRIBUTING.md](./CONTRIBUTING.md) for:
 
 ---
 
-**Note:** This is a developer-focused guide. For user documentation, see [README.md](./README.md) and [QUICKSTART.md](./QUICKSTART.md).
+**Note:** This is a developer-focused guide. For user documentation, see [README.md](../README.md) and [QUICKSTART.md](./QUICKSTART.md).
