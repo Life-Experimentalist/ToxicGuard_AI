@@ -45,7 +45,7 @@ Clone, install (if needed), and load the extension in developer mode:
 
 ```powershell
 # Clone the repo
-git clone https://github.com/Life-Experimentalists/ToxicGuard_AI.git ; cd ToxicGuard_AI
+git clone https://github.com/Life-Experimentalist/ToxicGuard_AI.git ; cd ToxicGuard_AI
 
 # (Optional) Download local TFJS assets if you prefer offline usage
 node setup.js

@@ -72,4 +72,4 @@ General discussions about the project and community.
 For urgent issues or private matters, you can reach out to:
 - **GitHub**: [@VKrishna04](https://github.com/VKrishna04)
 - **Website**: [VKrishna04.github.io](https://vkrishna04.github.io)
-- **Organization**: [Life-Experimentalists](https://github.com/orgs/Life-Experimentalists)
+- **Organization**: [Life-Experimentalist](https://github.com/orgs/Life-Experimentalist)

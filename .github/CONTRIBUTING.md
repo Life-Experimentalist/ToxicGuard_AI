@@ -50,7 +50,7 @@ This document provides guidelines for contributing to this project. Please read 
 ### Local Development
 ```powershell
 # Clone the repository
-git clone https://github.com/Life-Experimentalists/ToxicGuard_AI.git
+git clone https://github.com/Life-Experimentalist/ToxicGuard_AI.git
 cd ToxicGuard_AI
 
 # Load extension in browser

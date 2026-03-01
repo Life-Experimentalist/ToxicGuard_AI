@@ -9,18 +9,32 @@
     <link rel="icon" type="image/png" sizes="32x32" href="icons/icon32.png">
     <style>
         :root {
-            --primary: #1a73e8;
-            --primary-dark: #1557b0;
-            --secondary: #34a853;
-            --danger: #ea4335;
-            --warning: #fbbc04;
-            --bg: #f8f9fa;
-            --text: #202124;
-            --text-light: #5f6368;
+            --primary: #6366f1;
+            --primary-dark: #4f46e5;
+            --primary-light: #818cf8;
+            --secondary: #10b981;
+            --secondary-dark: #059669;
+            --danger: #ef4444;
+            --danger-dark: #dc2626;
+            --warning: #f59e0b;
+            --info: #3b82f6;
+            --bg: #f9fafb;
+            --bg-secondary: #f3f4f6;
+            --text: #111827;
+            --text-light: #6b7280;
+            --text-lighter: #9ca3af;
             --card-bg: #ffffff;
-            --border: #e8eaed;
-            --shadow: 0 1px 3px rgba(60, 64, 67, 0.3);
-            --shadow-hover: 0 4px 8px rgba(60, 64, 67, 0.15);
+            --border: #e5e7eb;
+            --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+            --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            --shadow-md: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+            --shadow-lg: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+            --shadow-xl: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+            --gradient-primary: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            --gradient-secondary: linear-gradient(135deg, var(--secondary) 0%, var(--secondary-dark) 100%);
+            --gradient-hero: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            --border-radius: 12px;
+            --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         }
 
         * {
@@ -29,27 +43,53 @@
             box-sizing: border-box;
         }
 
+        html {
+            scroll-behavior: smooth;
+        }
+
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
             line-height: 1.6;
             color: var(--text);
             background-color: var(--bg);
+            overflow-x: hidden;
         }
 
         .container {
-            max-width: 1200px;
+            max-width: 1280px;
             margin: 0 auto;
-            padding: 0 20px;
+            padding: 0 24px;
+        }
+
+        /* Scrollbar Styling */
+        ::-webkit-scrollbar {
+            width: 10px;
+            height: 10px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: var(--bg-secondary);
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: var(--primary-light);
+            border-radius: 5px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--primary);
         }
 
         /* Header */
         header {
-            background: var(--card-bg);
-            padding: 1rem 0;
-            box-shadow: var(--shadow);
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            padding: 1.25rem 0;
+            box-shadow: var(--shadow-sm);
             position: sticky;
             top: 0;
-            z-index: 100;
+            z-index: 1000;
+            border-bottom: 1px solid var(--border);
         }
 
         nav {
@@ -66,351 +106,780 @@
             font-weight: 700;
             color: var(--primary);
             text-decoration: none;
+            transition: var(--transition);
+        }
+
+        .logo:hover {
+            transform: translateY(-2px);
         }
 
         .logo img {
-            width: 40px;
-            height: 40px;
+            width: 42px;
+            height: 42px;
+            filter: drop-shadow(0 2px 4px rgba(99, 102, 241, 0.3));
+            transition: var(--transition);
+        }
+
+        .logo:hover img {
+            filter: drop-shadow(0 4px 8px rgba(99, 102, 241, 0.5));
         }
 
         .nav-links {
             display: flex;
-            gap: 2rem;
+            gap: 2.5rem;
             list-style: none;
+            align-items: center;
         }
 
         .nav-links a {
             color: var(--text);
             text-decoration: none;
             font-weight: 500;
-            transition: color 0.2s;
+            font-size: 0.95rem;
+            position: relative;
+            transition: var(--transition);
+        }
+
+        .nav-links a::after {
+            content: '';
+            position: absolute;
+            bottom: -4px;
+            left: 0;
+            width: 0;
+            height: 2px;
+            background: var(--primary);
+            transition: width 0.3s ease;
         }
 
         .nav-links a:hover {
             color: var(--primary);
         }
 
+        .nav-links a:hover::after {
+            width: 100%;
+        }
+
+        .mobile-menu-btn {
+            display: none;
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: var(--text);
+        }
+
         /* Hero Section */
         .hero {
-            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            background: var(--gradient-hero);
             color: white;
-            padding: 5rem 0;
+            padding: 8rem 0 6rem;
             text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .hero::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.05'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+            opacity: 0.5;
+        }
+
+        .hero-content {
+            position: relative;
+            z-index: 1;
         }
 
         .hero h1 {
-            font-size: 3.5rem;
-            margin-bottom: 1rem;
-            font-weight: 700;
+            font-size: 4rem;
+            margin-bottom: 1.5rem;
+            font-weight: 800;
+            line-height: 1.1;
+            animation: fadeInUp 0.8s ease;
         }
 
-        .hero p {
-            font-size: 1.3rem;
-            margin-bottom: 2rem;
-            opacity: 0.9;
-            max-width: 600px;
+        .hero .subtitle {
+            font-size: 1.4rem;
+            margin-bottom: 2.5rem;
+            opacity: 0.95;
+            max-width: 700px;
             margin-left: auto;
             margin-right: auto;
+            font-weight: 400;
+            line-height: 1.6;
+            animation: fadeInUp 0.8s ease 0.2s backwards;
         }
 
         .hero-buttons {
             display: flex;
-            gap: 1rem;
+            gap: 1.25rem;
             justify-content: center;
             flex-wrap: wrap;
+            animation: fadeInUp 0.8s ease 0.4s backwards;
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
         }
 
         .btn {
             display: inline-flex;
             align-items: center;
-            gap: 8px;
-            padding: 12px 24px;
+            gap: 10px;
+            padding: 14px 32px;
             border: none;
-            border-radius: 8px;
-            font-size: 1rem;
+            border-radius: var(--border-radius);
+            font-size: 1.05rem;
             font-weight: 600;
             text-decoration: none;
             cursor: pointer;
-            transition: all 0.2s;
+            transition: var(--transition);
+            box-shadow: var(--shadow);
         }
 
         .btn-primary {
-            background: var(--card-bg);
+            background: white;
             color: var(--primary);
         }
 
         .btn-primary:hover {
-            background: #f1f3f4;
-            transform: translateY(-2px);
+            background: #f9fafb;
+            transform: translateY(-3px);
+            box-shadow: var(--shadow-md);
         }
 
         .btn-secondary {
-            background: transparent;
+            background: rgba(255, 255, 255, 0.15);
             color: white;
             border: 2px solid white;
+            backdrop-filter: blur(10px);
         }
 
         .btn-secondary:hover {
             background: white;
             color: var(--primary);
+            transform: translateY(-3px);
+            box-shadow: var(--shadow-md);
+        }
+
+        .btn-outline {
+            background: transparent;
+            color: var(--primary);
+            border: 2px solid var(--primary);
+        }
+
+        .btn-outline:hover {
+            background: var(--primary);
+            color: white;
+            transform: translateY(-2px);
         }
 
         /* Features Section */
         .features {
-            padding: 5rem 0;
+            padding: 6rem 0;
+            background: white;
         }
 
         .section-title {
             text-align: center;
-            font-size: 2.5rem;
-            margin-bottom: 3rem;
-            font-weight: 700;
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            font-weight: 800;
+            color: var(--text);
+        }
+
+        .section-subtitle {
+            text-align: center;
+            font-size: 1.2rem;
+            color: var(--text-light);
+            margin-bottom: 4rem;
+            max-width: 600px;
+            margin-left: auto;
+            margin-right: auto;
         }
 
         .features-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-            gap: 2rem;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 2.5rem;
         }
 
         .feature-card {
             background: var(--card-bg);
-            padding: 2rem;
-            border-radius: 12px;
+            padding: 2.5rem;
+            border-radius: var(--border-radius);
             box-shadow: var(--shadow);
-            transition: transform 0.2s, box-shadow 0.2s;
+            transition: var(--transition);
+            border: 1px solid var(--border);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .feature-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 4px;
+            background: var(--gradient-primary);
+            transform: scaleX(0);
+            transition: transform 0.3s ease;
         }
 
         .feature-card:hover {
-            transform: translateY(-4px);
-            box-shadow: var(--shadow-hover);
+            transform: translateY(-8px);
+            box-shadow: var(--shadow-lg);
+            border-color: var(--primary-light);
+        }
+
+        .feature-card:hover::before {
+            transform: scaleX(1);
         }
 
         .feature-icon {
-            font-size: 3rem;
-            margin-bottom: 1rem;
+            font-size: 3.5rem;
+            margin-bottom: 1.5rem;
+            display: block;
+            filter: drop-shadow(0 4px 6px rgba(0, 0, 0, 0.1));
         }
 
         .feature-card h3 {
             font-size: 1.5rem;
             margin-bottom: 1rem;
-            color: var(--primary);
+            color: var(--text);
+            font-weight: 700;
+        }
+
+        .feature-card p {
+            color: var(--text-light);
+            line-height: 1.7;
+            font-size: 1rem;
         }
 
         /* Demo Section */
         .demo {
-            background: var(--card-bg);
-            padding: 5rem 0;
+            background: var(--bg);
+            padding: 6rem 0;
         }
 
         .demo-container {
             display: grid;
             grid-template-columns: 1fr 1fr;
-            gap: 3rem;
+            gap: 4rem;
             align-items: center;
         }
 
         .demo-content h2 {
-            font-size: 2.5rem;
+            font-size: 3rem;
             margin-bottom: 1.5rem;
-            color: var(--primary);
+            color: var(--text);
+            font-weight: 800;
         }
 
         .demo-content p {
-            font-size: 1.1rem;
+            font-size: 1.15rem;
             color: var(--text-light);
-            margin-bottom: 2rem;
+            margin-bottom: 2.5rem;
+            line-height: 1.7;
         }
 
         .demo-visual {
-            background: var(--bg);
-            padding: 2rem;
-            border-radius: 12px;
+            background: white;
+            padding: 2.5rem;
+            border-radius: var(--border-radius);
             border: 2px solid var(--border);
+            box-shadow: var(--shadow-md);
+        }
+
+        .demo-visual h3 {
+            font-size: 1.5rem;
+            margin-bottom: 1.5rem;
+            color: var(--text);
+            font-weight: 700;
         }
 
         .demo-input {
             width: 100%;
-            padding: 1rem;
+            padding: 1.25rem;
             border: 2px solid var(--border);
-            border-radius: 8px;
+            border-radius: var(--border-radius);
             font-size: 1rem;
             margin-bottom: 1rem;
-            transition: border-color 0.2s;
+            transition: var(--transition);
+            font-family: inherit;
         }
 
         .demo-input:focus {
             outline: none;
             border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
         }
 
         .demo-input.toxic {
             border-color: var(--danger);
-            background: #fef7f7;
+            background: #fef2f2;
         }
 
         .demo-result {
-            padding: 1rem;
-            border-radius: 8px;
+            padding: 1.25rem;
+            border-radius: var(--border-radius);
             margin-top: 1rem;
             font-weight: 600;
+            font-size: 0.95rem;
+            animation: slideIn 0.3s ease;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
         }
 
         .result-safe {
-            background: #e8f5e8;
-            color: var(--secondary);
-            border: 1px solid var(--secondary);
+            background: #f0fdf4;
+            color: var(--secondary-dark);
+            border: 2px solid var(--secondary);
         }
 
         .result-toxic {
-            background: #fde7e7;
-            color: var(--danger);
-            border: 1px solid var(--danger);
+            background: #fef2f2;
+            color: var(--danger-dark);
+            border: 2px solid var(--danger);
         }
 
         /* Enhanced extension status indicator */
         #extensionStatus {
-            transition: all 0.3s ease;
+            transition: var(--transition);
+            font-size: 0.95rem;
+            padding: 1rem 1.25rem;
+            border-radius: var(--border-radius);
+            display: flex;
+            align-items: center;
+            gap: 10px;
         }
 
         #extensionStatus.loaded {
-            background: #e8f5e8;
-            color: var(--secondary);
-            border: 1px solid var(--secondary);
+            background: #f0fdf4;
+            color: var(--secondary-dark);
+            border: 2px solid var(--secondary);
         }
 
         #extensionStatus.not-loaded {
-            background: #fff3cd;
-            color: #856404;
-            border: 1px solid #ffc107;
+            background: #fffbeb;
+            color: #92400e;
+            border: 2px solid var(--warning);
         }
 
         #extensionStatus.checking {
-            background: #e3f2fd;
-            color: #1976d2;
-            border: 1px solid #64b5f6;
+            background: #eff6ff;
+            color: #1e40af;
+            border: 2px solid var(--info);
+        }
+
+        #extensionStatus a {
+            color: inherit;
+            text-decoration: underline;
+            font-weight: 600;
+        }
+
+        #extensionStatus a:hover {
+            opacity: 0.8;
         }
 
         /* Stats Section */
         .stats {
-            padding: 4rem 0;
-            background: var(--primary);
+            padding: 5rem 0;
+            background: var(--gradient-primary);
             color: white;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .stats::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.03'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+        }
+
+        .stats .container {
+            position: relative;
+            z-index: 1;
         }
 
         .stats-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 2rem;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 3rem;
             text-align: center;
         }
 
+        .stat-item {
+            padding: 2rem;
+            border-radius: var(--border-radius);
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            transition: var(--transition);
+        }
+
+        .stat-item:hover {
+            background: rgba(255, 255, 255, 0.15);
+            transform: translateY(-5px);
+        }
+
         .stat-item h3 {
-            font-size: 3rem;
-            margin-bottom: 0.5rem;
+            font-size: 3.5rem;
+            margin-bottom: 0.75rem;
+            font-weight: 800;
         }
 
         .stat-item p {
-            font-size: 1.1rem;
-            opacity: 0.9;
+            font-size: 1.15rem;
+            opacity: 0.95;
+            font-weight: 500;
         }
 
         /* Installation Section */
         .installation {
-            padding: 5rem 0;
+            padding: 6rem 0;
+            background: white;
         }
 
         .install-steps {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-            gap: 2rem;
-            margin-top: 3rem;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 2.5rem;
+            margin-top: 4rem;
         }
 
         .step {
             background: var(--card-bg);
-            padding: 2rem;
-            border-radius: 12px;
+            padding: 2.5rem;
+            border-radius: var(--border-radius);
             box-shadow: var(--shadow);
             text-align: center;
+            border: 2px solid var(--border);
+            transition: var(--transition);
+            position: relative;
+        }
+
+        .step:hover {
+            transform: translateY(-5px);
+            box-shadow: var(--shadow-lg);
+            border-color: var(--primary-light);
         }
 
         .step-number {
-            background: var(--primary);
+            background: var(--gradient-primary);
             color: white;
-            width: 40px;
-            height: 40px;
+            width: 56px;
+            height: 56px;
             border-radius: 50%;
             display: flex;
             align-items: center;
             justify-content: center;
+            font-weight: 800;
+            font-size: 1.5rem;
+            margin: 0 auto 1.5rem;
+            box-shadow: var(--shadow-md);
+        }
+
+        .step h3 {
+            font-size: 1.35rem;
+            margin-bottom: 1rem;
+            color: var(--text);
             font-weight: 700;
-            margin: 0 auto 1rem;
+        }
+
+        .step p {
+            color: var(--text-light);
+            line-height: 1.6;
+        }
+
+        .code-block {
+            background: #1e293b;
+            color: #e2e8f0;
+            padding: 2rem;
+            border-radius: var(--border-radius);
+            font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
+            font-size: 0.95rem;
+            text-align: left;
+            margin-top: 2rem;
+            overflow-x: auto;
+            box-shadow: var(--shadow-md);
+            border: 2px solid #334155;
+        }
+
+        .code-block .comment {
+            color: #94a3b8;
+        }
+
+        .code-block .command {
+            color: #22d3ee;
+        }
+
+        /* Contributors Section */
+        .contributors {
+            padding: 6rem 0;
+            background: var(--bg);
+        }
+
+        .contributors-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 2.5rem;
+            margin-top: 3rem;
+        }
+
+        .contributor-card {
+            background: white;
+            padding: 2.5rem;
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow);
+            text-align: center;
+            border: 2px solid var(--border);
+            transition: var(--transition);
+        }
+
+        .contributor-card:hover {
+            transform: translateY(-5px);
+            box-shadow: var(--shadow-lg);
+            border-color: var(--primary-light);
+        }
+
+        .contributor-avatar {
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            margin: 0 auto 1.5rem;
+            border: 4px solid var(--primary-light);
+            box-shadow: var(--shadow-md);
+            transition: var(--transition);
+        }
+
+        .contributor-card:hover .contributor-avatar {
+            transform: scale(1.1);
+            border-color: var(--primary);
+        }
+
+        .contributor-card h3 {
+            font-size: 1.5rem;
+            margin-bottom: 0.5rem;
+            color: var(--text);
+            font-weight: 700;
+        }
+
+        .contributor-card .role {
+            color: var(--primary);
+            font-weight: 600;
+            margin-bottom: 1rem;
+            font-size: 0.95rem;
+        }
+
+        .contributor-card p {
+            color: var(--text-light);
+            margin-bottom: 1.5rem;
+            line-height: 1.6;
+        }
+
+        .social-links {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+        }
+
+        .social-link {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: var(--bg);
+            color: var(--text);
+            text-decoration: none;
+            transition: var(--transition);
+            border: 2px solid var(--border);
+        }
+
+        .social-link:hover {
+            background: var(--primary);
+            color: white;
+            border-color: var(--primary);
+            transform: translateY(-3px);
         }
 
         /* Footer */
         footer {
-            background: var(--text);
-            color: white;
-            padding: 3rem 0 1rem;
+            background: #1e293b;
+            color: #e2e8f0;
+            padding: 4rem 0 1.5rem;
         }
 
         .footer-content {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-            gap: 2rem;
-            margin-bottom: 2rem;
+            gap: 3rem;
+            margin-bottom: 3rem;
         }
 
         .footer-section h3 {
-            margin-bottom: 1rem;
-            color: var(--primary);
+            margin-bottom: 1.5rem;
+            color: white;
+            font-weight: 700;
+            font-size: 1.2rem;
         }
 
         .footer-section a {
-            color: #ccc;
+            color: #cbd5e1;
             text-decoration: none;
             display: block;
-            margin-bottom: 0.5rem;
+            margin-bottom: 0.75rem;
+            transition: var(--transition);
+            font-size: 0.95rem;
         }
 
         .footer-section a:hover {
-            color: white;
+            color: var(--primary-light);
+            padding-left: 5px;
         }
 
         .footer-bottom {
             text-align: center;
-            padding-top: 2rem;
-            border-top: 1px solid #444;
-            color: #ccc;
+            padding-top: 2.5rem;
+            border-top: 1px solid #334155;
+            color: #94a3b8;
+            font-size: 0.95rem;
+        }
+
+        .footer-bottom a {
+            color: var(--primary-light);
+            text-decoration: none;
+        }
+
+        .footer-bottom a:hover {
+            text-decoration: underline;
         }
 
         /* Responsive */
-        @media (max-width: 768px) {
+        @media (max-width: 1024px) {
             .hero h1 {
-                font-size: 2.5rem;
+                font-size: 3rem;
             }
 
-            .hero p {
-                font-size: 1.1rem;
+            .section-title {
+                font-size: 2.5rem;
             }
 
             .demo-container {
                 grid-template-columns: 1fr;
             }
+        }
+
+        @media (max-width: 768px) {
+            .hero {
+                padding: 5rem 0 4rem;
+            }
+
+            .hero h1 {
+                font-size: 2.5rem;
+            }
+
+            .hero .subtitle {
+                font-size: 1.1rem;
+            }
+
+            .section-title {
+                font-size: 2rem;
+            }
+
+            .demo-content h2 {
+                font-size: 2rem;
+            }
 
             .nav-links {
                 display: none;
+            }
+
+            .mobile-menu-btn {
+                display: block;
+            }
+
+            .features-grid,
+            .install-steps,
+            .contributors-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .stat-item h3 {
+                font-size: 2.5rem;
             }
         }
 
         /* Accessibility */
         @media (prefers-reduced-motion: reduce) {
-            * {
+            *,
+            *::before,
+            *::after {
                 animation-duration: 0.01ms !important;
                 animation-iteration-count: 1 !important;
                 transition-duration: 0.01ms !important;
             }
+        }
+
+        /* Dark mode support (optional for future) */
+        @media (prefers-color-scheme: dark) {
+            /* Can be implemented later */
+        }
+
+        /* Scroll to top button */
+        .scroll-top {
+            position: fixed;
+            bottom: 2rem;
+            right: 2rem;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background: var(--gradient-primary);
+            color: white;
+            border: none;
+            cursor: pointer;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            box-shadow: var(--shadow-lg);
+            transition: var(--transition);
+            z-index: 999;
+        }
+
+        .scroll-top:hover {
+            transform: translateY(-5px);
+            box-shadow: var(--shadow-xl);
+        }
+
+        .scroll-top.visible {
+            display: flex;
         }
     </style>
 </head>
@@ -426,22 +895,25 @@
                 <li><a href="#demo">Demo</a></li>
                 <li><a href="#installation">Install</a></li>
                 <li><a href="test.html" target="_blank">Live Test</a></li>
-                <li><a href="https://github.com/Life-Experimentalists/ToxicGuard_AI" target="_blank">GitHub</a></li>
+                <li><a href="https://github.com/Life-Experimentalist/ToxicGuard_AI" target="_blank">GitHub</a></li>
             </ul>
         </nav>
     </header>
 
     <main>
         <section class="hero">
-            <div class="container">
+            <div class="container hero-content">
                 <h1>🛡️ ToxicGuard AI</h1>
-                <p>Real-time toxicity detection and censoring for a safer web experience. Powered by TensorFlow.js and machine learning.</p>
+                <p class="subtitle">Real-time toxicity detection and censoring for a safer web experience. Powered by TensorFlow.js and machine learning—100% privacy-focused with local processing.</p>
                 <div class="hero-buttons">
                     <a href="test.html" class="btn btn-primary" target="_blank">
                         🔬 Try Live Demo
                     </a>
-                    <a href="https://github.com/Life-Experimentalists/ToxicGuard_AI" class="btn btn-secondary" target="_blank">
-                        📂 View Source
+                    <a href="https://github.com/Life-Experimentalist/ToxicGuard_AI" class="btn btn-secondary" target="_blank">
+                        📂 View on GitHub
+                    </a>
+                    <a href="#installation" class="btn btn-secondary">
+                        💾 Install Extension
                     </a>
                 </div>
             </div>
@@ -450,36 +922,37 @@
         <section id="features" class="features">
             <div class="container">
                 <h2 class="section-title">Powerful Features</h2>
+                <p class="section-subtitle">Advanced AI-powered protection that works seamlessly across your browsing experience</p>
                 <div class="features-grid">
                     <div class="feature-card">
                         <div class="feature-icon">🧠</div>
                         <h3>AI-Powered Detection</h3>
-                        <p>Uses TensorFlow.js and the @tensorflow-models/toxicity model to detect harmful content with high accuracy across multiple categories.</p>
+                        <p>Uses TensorFlow.js and the @tensorflow-models/toxicity model to detect harmful content with high accuracy across multiple categories including threats, insults, hate speech, and more.</p>
                     </div>
                     <div class="feature-card">
                         <div class="feature-icon">⚡</div>
                         <h3>Real-Time Processing</h3>
-                        <p>Instant feedback as you type with debounced input monitoring and efficient DOM observation for dynamic content.</p>
+                        <p>Instant feedback as you type with debounced input monitoring and efficient DOM observation for dynamic content. Experience seamless protection without lag.</p>
                     </div>
                     <div class="feature-card">
                         <div class="feature-icon">🔒</div>
                         <h3>Privacy First</h3>
-                        <p>All processing happens locally in your browser. No data is sent to external servers, ensuring complete privacy.</p>
+                        <p>All processing happens locally in your browser. No data is sent to external servers, ensuring complete privacy and security of your browsing activity.</p>
                     </div>
                     <div class="feature-card">
                         <div class="feature-icon">🎛️</div>
                         <h3>Customizable Settings</h3>
-                        <p>Adjust detection sensitivity, enable auto-censoring, and configure toxicity categories to match your preferences.</p>
+                        <p>Adjust detection sensitivity, enable auto-censoring, and configure toxicity categories to match your preferences. Full control at your fingertips.</p>
                     </div>
                     <div class="feature-card">
                         <div class="feature-icon">🌐</div>
                         <h3>Cross-Browser Support</h3>
-                        <p>Works seamlessly across Chrome, Firefox, and Edge with Manifest V3 compatibility and webextension-polyfill.</p>
+                        <p>Works seamlessly across Chrome, Firefox, and Edge with Manifest V3 compatibility and webextension-polyfill for universal compatibility.</p>
                     </div>
                     <div class="feature-card">
                         <div class="feature-icon">🎯</div>
                         <h3>Smart Targeting</h3>
-                        <p>Monitors text inputs, textareas, and contenteditable elements with support for dynamic content and shadow DOM.</p>
+                        <p>Monitors text inputs, textareas, and contenteditable elements with support for dynamic content, shadow DOM, and modern web frameworks.</p>
                     </div>
                 </div>
             </div>
@@ -490,27 +963,30 @@
                 <div class="demo-container">
                     <div class="demo-content">
                         <h2>See It In Action</h2>
-                        <p>Experience real-time toxicity detection with visual feedback. The extension provides immediate visual cues when potentially harmful content is detected.</p>
+                        <p>Experience real-time toxicity detection with visual feedback. The extension provides immediate visual cues when potentially harmful content is detected, making online interactions safer and more positive.</p>
                         <a href="test.html" class="btn btn-primary" target="_blank">
                             🧪 Open Full Test Suite
+                        </a>
+                        <a href="#installation" class="btn btn-outline" style="margin-left: 1rem;">
+                            📥 Get Started
                         </a>
                     </div>
                     <div class="demo-visual">
                         <h3>Interactive Demo</h3>
-                        <div id="extensionStatus" style="margin-bottom: 1rem; padding: 0.75rem; border-radius: 6px; font-size: 0.9rem; display: none;">
+                        <div id="extensionStatus" style="margin-bottom: 1.5rem; display: none;">
                             <span id="statusIcon"></span>
                             <span id="statusText"></span>
                         </div>
-                        <p>Try typing in the input below to test detection:</p>
+                        <p style="color: var(--text-light); margin-bottom: 1rem;">Try typing in the input below to test detection:</p>
                         <input type="text" class="demo-input" placeholder="Type something here to test detection..." id="demoInput">
                         <div id="demoResult" class="demo-result" style="display: none;">
                             <span id="resultText"></span>
                         </div>
-                        <div style="margin-top: 1rem; font-size: 0.85rem; color: var(--text-light);">
+                        <div style="margin-top: 1.5rem; font-size: 0.9rem; color: var(--text-light); padding: 1rem; background: var(--bg); border-radius: 8px;">
                             <strong>💡 Tips:</strong><br>
-                            • With extension: Real-time AI detection with visual feedback<br>
-                            • Without extension: Basic demo mode with limited detection<br>
-                            • Try words like "hate", "stupid", or "threat" to test detection
+                            • <strong>With extension:</strong> Real-time AI detection with visual feedback<br>
+                            • <strong>Without extension:</strong> Basic demo mode with limited detection<br>
+                            • <strong>Test words:</strong> Try "hate", "stupid", or "threat" to see detection
                         </div>
                     </div>
                 </div>
@@ -543,38 +1019,89 @@
         <section id="installation" class="installation">
             <div class="container">
                 <h2 class="section-title">Easy Installation</h2>
+                <p class="section-subtitle">Get up and running in minutes with our simple installation process</p>
                 <div class="install-steps">
                     <div class="step">
                         <div class="step-number">1</div>
-                        <h3>Download Extension</h3>
-                        <p>Clone or download the extension from our GitHub repository</p>
+                        <h3>Clone Repository</h3>
+                        <p>Clone or download the extension from our GitHub repository to get the latest version with all features</p>
                     </div>
                     <div class="step">
                         <div class="step-number">2</div>
                         <h3>Enable Developer Mode</h3>
-                        <p>Go to your browser's extensions page and enable Developer Mode</p>
+                        <p>Open your browser's extensions page and enable Developer Mode to load unpacked extensions</p>
                     </div>
                     <div class="step">
                         <div class="step-number">3</div>
                         <h3>Load Extension</h3>
-                        <p>Click "Load unpacked" and select the extension folder</p>
+                        <p>Click "Load unpacked" and select the ToxicGuard AI extension folder from your downloads</p>
                     </div>
                     <div class="step">
                         <div class="step-number">4</div>
                         <h3>Start Protecting</h3>
-                        <p>The extension is now active and protecting your browsing experience</p>
+                        <p>The extension is now active! Configure settings from the popup and enjoy safer browsing</p>
                     </div>
                 </div>
-                <div style="text-align: center; margin-top: 3rem;">
-                    <h3>Developer Setup (PowerShell)</h3>
-                    <div style="background: var(--text); color: #00ff00; padding: 1.5rem; border-radius: 8px; font-family: monospace; text-align: left; margin-top: 1rem; overflow-x: auto;">
-# Clone the repository<br>
-git clone https://github.com/Life-Experimentalists/ToxicGuard_AI.git<br>
-cd ToxicGuard_AI<br><br>
-# Optional: Download local TensorFlow assets<br>
-node setup.js<br><br>
-# Load the folder as unpacked extension in browser
+                <div style="text-align: center; margin-top: 4rem;">
+                    <h3 style="font-size: 2rem; margin-bottom: 1.5rem; color: var(--text);">Developer Setup (PowerShell)</h3>
+                    <p style="color: var(--text-light); margin-bottom: 2rem; max-width: 700px; margin-left: auto; margin-right: auto;">
+                        Quick start guide for developers using PowerShell on Windows
+                    </p>
+                    <div class="code-block">
+<span class="comment"># Clone the repository</span>
+git clone https://github.com/Life-Experimentalist/ToxicGuard_AI.git
+cd ToxicGuard_AI
+<br>
+<span class="comment"># Optional: Download local TensorFlow assets for offline usage</span>
+node setup.js
+<br>
+<span class="comment"># Load the folder as unpacked extension in your browser:</span><br>
+<span class="comment">      # Chrome/Edge: chrome://extensions → Load unpacked</span><br>
+<span class="comment">      # Firefox: about:debugging → This Firefox → Load Temporary Add-on</span>
                     </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="contributors">
+            <div class="container">
+                <h2 class="section-title">Contributors</h2>
+                <p class="section-subtitle">Meet the amazing people who made ToxicGuard AI possible</p>
+                <div class="contributors-grid">
+                    <div class="contributor-card">
+                        <img src="https://github.com/VKrishna04.png" alt="VKrishna04" class="contributor-avatar">
+                        <h3>VKrishna04</h3>
+                        <p class="role">Lead Developer & Creator</p>
+                        <p>Full-stack developer passionate about creating safer online experiences through AI and machine learning technologies.</p>
+                        <div class="social-links">
+                            <a href="https://github.com/VKrishna04" target="_blank" class="social-link" title="GitHub">
+                                <svg width="20" height="20" fill="currentColor" viewBox="0 0 24 24"><path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/></svg>
+                            </a>
+                            <a href="https://vkrishna04.github.io" target="_blank" class="social-link" title="Website">
+                                <svg width="20" height="20" fill="currentColor" viewBox="0 0 24 24"><path d="M12 0c-6.627 0-12 5.373-12 12s5.373 12 12 12 12-5.373 12-12-5.373-12-12-12zm1 16.057v-3.057h2.994c-.059 1.143-.212 2.24-.456 3.279-.823-.12-1.674-.188-2.538-.222zm1.957 2.162c-.499 1.33-1.159 2.497-1.957 3.456v-3.62c.666.028 1.319.081 1.957.164zm-1.957-7.219v-3.015c.868-.034 1.721-.103 2.548-.224.238 1.027.389 2.111.446 3.239h-2.994zm0-5.014v-3.661c.806.969 1.471 2.15 1.971 3.496-.642.084-1.3.137-1.971.165zm2.703-3.267c1.237.496 2.354 1.228 3.29 2.146-.642.234-1.311.442-2.019.607-.344-.992-.775-1.91-1.271-2.753zm-7.241 13.56c-.244-1.039-.398-2.136-.456-3.279h2.994v3.057c-.865.034-1.714.102-2.538.222zm2.538 1.776v3.62c-.798-.959-1.458-2.126-1.957-3.456.638-.083 1.291-.136 1.957-.164zm-2.994-7.055c.057-1.128.207-2.212.446-3.239.827.121 1.68.19 2.548.224v3.015h-2.994zm1.024-5.179c.5-1.346 1.165-2.527 1.97-3.496v3.661c-.671-.028-1.329-.081-1.97-.165zm-2.005-.35c-.708-.165-1.377-.373-2.018-.607.937-.918 2.053-1.65 3.29-2.146-.496.844-.927 1.762-1.272 2.753zm-.549 1.918c-.264 1.151-.434 2.36-.492 3.611h-3.933c.165-1.658.739-3.197 1.617-4.518.88.361 1.816.67 2.808.907zm.009 9.262c-.988.236-1.92.542-2.797.9-.89-1.328-1.471-2.879-1.637-4.551h3.934c.058 1.265.231 2.488.5 3.651zm.553 1.917c.342.976.768 1.881 1.257 2.712-1.223-.49-2.326-1.211-3.256-2.115.636-.229 1.299-.435 1.999-.597zm9.924 0c.7.163 1.362.367 1.999.597-.931.903-2.034 1.625-3.257 2.116.489-.832.915-1.737 1.258-2.713zm.553-1.917c.27-1.163.442-2.386.501-3.651h3.934c-.167 1.672-.748 3.223-1.638 4.551-.877-.358-1.81-.664-2.797-.9zm.501-5.651c-.058-1.251-.229-2.46-.492-3.611.992-.237 1.929-.546 2.809-.907.877 1.321 1.451 2.86 1.616 4.518h-3.933z"/></svg>
+                            </a>
+                        </div>
+                    </div>
+                    <div class="contributor-card">
+                        <img src="https://github.com/Jayanth-0703.png" alt="Jayanth" class="contributor-avatar">
+                        <h3>Jayanth</h3>
+                        <p class="role">Core Contributor</p>
+                        <p>Dedicated developer contributing to improve toxicity detection algorithms and enhance user experience across platforms.</p>
+                        <div class="social-links">
+                            <a href="https://github.com/Jayanth-0703" target="_blank" class="social-link" title="GitHub">
+                                <svg width="20" height="20" fill="currentColor" viewBox="0 0 24 24"><path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/></svg>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                <div style="text-align: center; margin-top: 3rem; padding: 2rem; background: white; border-radius: var(--border-radius); box-shadow: var(--shadow);">
+                    <h3 style="font-size: 1.5rem; margin-bottom: 1rem; color: var(--text);">Want to Contribute?</h3>
+                    <p style="color: var(--text-light); margin-bottom: 1.5rem; max-width: 600px; margin-left: auto; margin-right: auto;">
+                        We welcome contributions from the community! Check out our GitHub repository to get started.
+                    </p>
+                    <a href="https://github.com/Life-Experimentalist/ToxicGuard_AI/blob/main/CONTRIBUTING.md" class="btn btn-outline" target="_blank">
+                        🤝 Contribution Guidelines
+                    </a>
                 </div>
             </div>
         </section>
@@ -585,35 +1112,45 @@ node setup.js<br><br>
             <div class="footer-content">
                 <div class="footer-section">
                     <h3>ToxicGuard AI</h3>
+                    <p style="color: #cbd5e1; margin-bottom: 1rem;">Real-time toxicity detection for a safer web. Powered by AI, focused on privacy.</p>
                     <a href="#features">Features</a>
                     <a href="#demo">Demo</a>
                     <a href="#installation">Installation</a>
                     <a href="test.html" target="_blank">Live Test Page</a>
                 </div>
                 <div class="footer-section">
-                    <h3>Developer</h3>
-                    <a href="https://github.com/VKrishna04" target="_blank">VKrishna04</a>
-                    <a href="https://vkrishna04.github.io" target="_blank">Website</a>
-                    <a href="https://github.com/Life-Experimentalists" target="_blank">Organization</a>
+                    <h3>Resources</h3>
+                    <a href="https://github.com/Life-Experimentalist/ToxicGuard_AI" target="_blank">GitHub Repository</a>
+                    <a href="https://github.com/Life-Experimentalist/ToxicGuard_AI/issues" target="_blank">Report Issues</a>
+                    <a href="https://github.com/Life-Experimentalist/ToxicGuard_AI/blob/main/README.md" target="_blank">Documentation</a>
+                    <a href="https://github.com/Life-Experimentalist/ToxicGuard_AI/releases" target="_blank">Releases</a>
                 </div>
                 <div class="footer-section">
-                    <h3>Resources</h3>
-                    <a href="https://github.com/Life-Experimentalists/ToxicGuard_AI" target="_blank">GitHub Repository</a>
-                    <a href="https://github.com/Life-Experimentalists/ToxicGuard_AI/issues" target="_blank">Report Issues</a>
-                    <a href="https://github.com/Life-Experimentalists/ToxicGuard_AI/blob/main/README.md" target="_blank">Documentation</a>
+                    <h3>Community</h3>
+                    <a href="https://github.com/VKrishna04" target="_blank">VKrishna04</a>
+                    <a href="https://github.com/Jayanth-0703" target="_blank">Jayanth-0703</a>
+                    <a href="https://github.com/Life-Experimentalist" target="_blank">Life-Experimentalist</a>
+                    <a href="https://github.com/Life-Experimentalist/ToxicGuard_AI/blob/main/CONTRIBUTING.md" target="_blank">Contributing</a>
                 </div>
                 <div class="footer-section">
                     <h3>Technology</h3>
                     <a href="https://www.tensorflow.org/js" target="_blank">TensorFlow.js</a>
-                    <a href="https://developer.mozilla.org/en-US/docs/Mozilla/Add-ons/WebExtensions" target="_blank">WebExtensions</a>
+                    <a href="https://developer.mozilla.org/en-US/docs/Mozilla/Add-ons/WebExtensions" target="_blank">WebExtensions API</a>
                     <a href="https://developer.chrome.com/docs/extensions/mv3/" target="_blank">Manifest V3</a>
+                    <a href="https://github.com/mozilla/webextension-polyfill" target="_blank">Browser Polyfill</a>
                 </div>
             </div>
             <div class="footer-bottom">
-                <p>&copy; 2025 ToxicGuard AI by VKrishna04. Open source project for safer web browsing.</p>
+                <p>&copy; 2025 ToxicGuard AI by <a href="https://github.com/VKrishna04" target="_blank">VKrishna04</a>. Open source project for safer web browsing.</p>
+                <p style="margin-top: 0.5rem;">Licensed under Apache License 2.0. All processing happens locally—your privacy is our priority.</p>
             </div>
         </div>
     </footer>
+
+    <!-- Scroll to Top Button -->
+    <button class="scroll-top" id="scrollTop" aria-label="Scroll to top">
+        ↑
+    </button>
 
     <script>
         // Simple demo functionality (works when extension is installed)
@@ -767,10 +1304,29 @@ node setup.js<br><br>
                 });
             });
 
-            // Animate stats on scroll
+            // Scroll to top button
+            const scrollTopBtn = document.getElementById('scrollTop');
+            if (scrollTopBtn) {
+                window.addEventListener('scroll', () => {
+                    if (window.pageYOffset > 300) {
+                        scrollTopBtn.classList.add('visible');
+                    } else {
+                        scrollTopBtn.classList.remove('visible');
+                    }
+                });
+
+                scrollTopBtn.addEventListener('click', () => {
+                    window.scrollTo({
+                        top: 0,
+                        behavior: 'smooth'
+                    });
+                });
+            }
+
+            // Animate elements on scroll with Intersection Observer
             const observerOptions = {
-                threshold: 0.5,
-                rootMargin: '0px 0px -100px 0px'
+                threshold: 0.1,
+                rootMargin: '0px 0px -50px 0px'
             };
 
             const observer = new IntersectionObserver((entries) => {
@@ -785,9 +1341,42 @@ node setup.js<br><br>
             // Observe feature cards
             document.querySelectorAll('.feature-card').forEach(card => {
                 card.style.opacity = '0';
-                card.style.transform = 'translateY(20px)';
+                card.style.transform = 'translateY(30px)';
                 card.style.transition = 'opacity 0.6s ease, transform 0.6s ease';
                 observer.observe(card);
+            });
+
+            // Observe install steps
+            document.querySelectorAll('.step').forEach((step, index) => {
+                step.style.opacity = '0';
+                step.style.transform = 'translateY(30px)';
+                step.style.transition = `opacity 0.6s ease ${index * 0.1}s, transform 0.6s ease ${index * 0.1}s`;
+                observer.observe(step);
+            });
+
+            // Observe contributor cards
+            document.querySelectorAll('.contributor-card').forEach((card, index) => {
+                card.style.opacity = '0';
+                card.style.transform = 'translateY(30px)';
+                card.style.transition = `opacity 0.6s ease ${index * 0.15}s, transform 0.6s ease ${index * 0.15}s`;
+                observer.observe(card);
+            });
+
+            // Observe stat items
+            document.querySelectorAll('.stat-item').forEach((item, index) => {
+                item.style.opacity = '0';
+                item.style.transform = 'scale(0.8)';
+                item.style.transition = `opacity 0.5s ease ${index * 0.1}s, transform 0.5s ease ${index * 0.1}s`;
+                observer.observe(item);
+            });
+
+            // Add loading animation to images
+            document.querySelectorAll('img').forEach(img => {
+                img.addEventListener('load', function() {
+                    this.style.opacity = '1';
+                });
+                img.style.opacity = '0';
+                img.style.transition = 'opacity 0.3s ease';
             });
         });
     </script>

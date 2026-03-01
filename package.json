@@ -1,0 +1,30 @@
+{
+    "name": "toxicguard-ai",
+    "version": "2.0.0",
+    "description": "AI-powered browser extension for real-time toxicity detection",
+    "scripts": {
+        "build": "node scripts/build-package.js",
+        "test": "playwright test",
+        "test:chromium": "playwright test --project=chromium",
+        "test:firefox": "playwright test --project=firefox",
+        "test:all": "playwright test --project=chromium --project=firefox"
+    },
+    "keywords": [
+        "toxicity",
+        "safety",
+        "browser-extension",
+        "tensorflow",
+        "ai",
+        "content-moderation",
+        "machine-learning",
+        "real-time",
+        "censorship",
+        "web-safety"
+    ],
+    "author": "VKrishna04 & Contributors",
+    "license": "Apache-2.0",
+    "devDependencies": {
+        "@playwright/test": "^1.48.0",
+        "archiver": "^7.0.1"
+    }
+}
