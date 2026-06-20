@@ -1,4 +1,4 @@
-# ToxicGuard AI - Project Structure
+# Toxic Shield - Project Structure
 
 ```
 ToxicGuard_AI/

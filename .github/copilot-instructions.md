@@ -1,4 +1,4 @@
-# ToxicGuard AI - Copilot Instructions
+# Toxic Shield - Copilot Instructions
 
 ## Command Line Requirements
 
@@ -17,7 +17,7 @@ When joining commands on a single line, use the `;` character as appropriate for
 
 ## Project Overview
 
-ToxicGuard AI is a **cross-browser extension** (Manifest V3) that provides real-time toxicity detection using TensorFlow.js and the `@tensorflow-models/toxicity` model. The extension injects content scripts into web pages to monitor text inputs and provide visual feedback.
+Toxic Shield is a **cross-browser extension** (Manifest V3) that provides real-time toxicity detection using TensorFlow.js and the `@tensorflow-models/toxicity` model. The extension injects content scripts into web pages to monitor text inputs and provide visual feedback.
 
 ## Architecture
 

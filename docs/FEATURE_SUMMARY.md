@@ -1,4 +1,4 @@
-# 🚀 ToxicGuard AI - Feature Update Summary
+# 🚀 Toxic Shield - Feature Update Summary
 
 ## ✅ Completed Tasks
 

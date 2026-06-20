@@ -1,4 +1,4 @@
-# ToxicGuard AI - Troubleshooting Guide
+# Toxic Shield - Troubleshooting Guide
 
 ## 🚨 Common Errors & Solutions
 

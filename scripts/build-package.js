@@ -76,7 +76,7 @@ function createZip(outputName, manifestPath, subDir) {
 
 // Main build process
 async function build() {
-  console.log("\n🚀 Building ToxicGuard AI Extension Packages...\n");
+  console.log("\n🚀 Building Toxic Shield Extension Packages...\n");
   console.log(`📦 Version: ${version}\n`);
 
   try {

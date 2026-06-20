@@ -1,12 +1,12 @@
-# Contributing to ToxicGuard AI
+# Contributing to Toxic Shield
 
-Thank you for your interest in contributing to ToxicGuard AI! 🎉
+Thank you for your interest in contributing to Toxic Shield! 🎉
 
 This document provides guidelines for contributing to this project. Please read it carefully before submitting contributions.
 
 ## 🚨 Important Notice
 
-**ToxicGuard AI is a small hobby project with limited maintenance.** While contributions are welcome, please note that:
+**Toxic Shield is a small hobby project with limited maintenance.** While contributions are welcome, please note that:
 
 - Response times may be slow
 - Not all contributions may be accepted
@@ -176,8 +176,8 @@ Contributors will be recognized in:
 
 ## 📜 [License](../LICENSE.md)
 
-By contributing to ToxicGuard AI, you agree that your contributions will be licensed under the Apache 2.0 License.
+By contributing to Toxic Shield, you agree that your contributions will be licensed under the Apache 2.0 License.
 
 ---
 
-**Thank you for contributing to ToxicGuard AI!** 🛡️✨
+**Thank you for contributing to Toxic Shield!** 🛡️✨

@@ -1,4 +1,4 @@
-# ToxicGuard AI - Bug Fixes
+# Toxic Shield - Bug Fixes
 
 ## Date: October 17, 2025
 

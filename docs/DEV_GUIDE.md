@@ -1,4 +1,4 @@
-# ToxicGuard AI - Development Guide
+# Toxic Shield - Development Guide
 
 ## 🚀 New Features
 
@@ -21,7 +21,7 @@ The version number is automatically extracted from `manifest.json`.
 Enable detailed debugging information in the browser console:
 
 **How to Enable:**
-1. Click the ToxicGuard AI extension icon
+1. Click the Toxic Shield extension icon
 2. Toggle "Developer Mode" to ON
 3. Open browser DevTools (F12)
 

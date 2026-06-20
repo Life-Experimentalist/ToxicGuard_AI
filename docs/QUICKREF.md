@@ -1,4 +1,4 @@
-# ToxicGuard AI - Quick Start for New Features
+# Toxic Shield - Quick Start for New Features
 
 ## 🚀 Automated Packaging
 
@@ -19,7 +19,7 @@ npm run build
 ## 🔧 Developer Mode
 
 ### Enable:
-1. Click ToxicGuard AI icon
+1. Click Toxic Shield icon
 2. Toggle **"Developer Mode"** ON
 3. Open DevTools (F12)
 

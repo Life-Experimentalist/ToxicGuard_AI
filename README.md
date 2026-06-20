@@ -1,4 +1,4 @@
-# 🛡️ Toxic Shield (ToxicGuard AI)
+# 🛡️ Toxic Shield
 
 A privacy-forward browser extension that detects and optionally censors toxic language in real-time using TensorFlow.js and the `@tensorflow-models/toxicity` model.
 
@@ -6,7 +6,7 @@ A privacy-forward browser extension that detects and optionally censors toxic la
 
 ## Table of Contents
 
-- [🛡️ Toxic Shield (ToxicGuard AI)](#️-toxic-shield-toxicguard-ai)
+- [🛡️ Toxic Shield](#️-toxic-shield)
   - [Table of Contents](#table-of-contents)
   - [Project Overview](#project-overview)
   - [Quick Start (PowerShell)](#quick-start-powershell)
@@ -24,7 +24,7 @@ A privacy-forward browser extension that detects and optionally censors toxic la
 
 ## Project Overview
 
-Toxic Shield (aka ToxicGuard AI) is a cross-browser Manifest V3 extension that:
+Toxic Shield is a cross-browser Manifest V3 extension that:
 
 - Loads a local copy or CDN copy of TensorFlow.js and the toxicity model in content scripts.
 - Monitors text inputs, textareas and contenteditable elements for toxic content.

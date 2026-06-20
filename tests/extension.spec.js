@@ -7,7 +7,7 @@ const TEST_PAGE = `file:///${path
   .join(__dirname, "..", "test.html")
   .replace(/\\/g, "/")}`;
 
-test.describe("ToxicGuard AI Extension Tests", () => {
+test.describe("Toxic Shield Extension Tests", () => {
   test("should load extension in Chromium", async ({ browserName }) => {
     test.skip(browserName !== "chromium", "This test is only for Chromium");
 

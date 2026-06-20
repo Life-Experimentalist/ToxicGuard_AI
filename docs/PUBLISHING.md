@@ -1,6 +1,6 @@
-# 📦 ToxicGuard AI Publishing Guide
+# 📦 Toxic Shield Publishing Guide
 
-Complete guide for publishing ToxicGuard AI to browser extension stores.
+Complete guide for publishing Toxic Shield to browser extension stores.
 
 ## 📋 Pre-Publishing Checklist
 
@@ -61,7 +61,7 @@ Compress-Archive -Path $files -DestinationPath "ToxicGuard_AI_Chrome.zip" -Force
    - Fill in account information
 
 2. **Prepare Store Listing**
-   - **Extension Name:** ToxicGuard AI
+   - **Extension Name:** Toxic Shield
    - **Short Description:** Real-time toxicity detection using AI
    - **Detailed Description:** (See template below)
    - **Category:** Productivity or Social & Communication
@@ -182,7 +182,7 @@ Real-time AI-powered toxicity detection. Protect your browsing with privacy-focu
 ### Detailed Description
 
 ```markdown
-🛡️ ToxicGuard AI - Real-Time Toxicity Detection
+🛡️ Toxic Shield - Real-Time Toxicity Detection
 
 Make the web a safer place with AI-powered content moderation that works entirely in your browser.
 
@@ -245,7 +245,7 @@ SUPPORT & FEEDBACK
 
 PRIVACY POLICY
 
-ToxicGuard AI processes all content locally in your browser. We do not collect, store, or transmit any personal data. Your browsing activity remains completely private.
+Toxic Shield processes all content locally in your browser. We do not collect, store, or transmit any personal data. Your browsing activity remains completely private.
 
 Made with ❤️ by VKrishna04 and contributors.
 ```
@@ -274,7 +274,7 @@ Made with ❤️ by VKrishna04 and contributors.
 - **Primary Color:** #6366f1 (Indigo)
 - **Secondary Color:** #10b981 (Green)
 - **Accent Color:** #ef4444 (Red for warnings)
-- **Logo:** Shield emoji 🛡️ with "ToxicGuard AI" text
+- **Logo:** Shield emoji 🛡️ with "Toxic Shield" text
 
 ---
 

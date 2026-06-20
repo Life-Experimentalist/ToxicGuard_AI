@@ -1,6 +1,6 @@
-# 🚀 ToxicGuard AI - Quick Start Guide
+# 🚀 Toxic Shield - Quick Start Guide
 
-Get up and running with ToxicGuard AI in 5 minutes!
+Get up and running with Toxic Shield in 5 minutes!
 
 ## 📥 Installation (Choose One Method)
 
@@ -288,7 +288,7 @@ Check [Releases](https://github.com/Life-Experimentalist/ToxicGuard_AI/releases)
 
 ## 🎉 Success!
 
-You're now ready to browse with ToxicGuard AI protection!
+You're now ready to browse with Toxic Shield protection!
 
 **What's Next?**
 
@@ -303,6 +303,6 @@ You're now ready to browse with ToxicGuard AI protection!
 
 **Need help?** Open an issue on [GitHub](https://github.com/Life-Experimentalist/ToxicGuard_AI/issues)
 
-**Enjoying ToxicGuard AI?** Give us a ⭐ on [GitHub](https://github.com/Life-Experimentalist/ToxicGuard_AI)!
+**Enjoying Toxic Shield?** Give us a ⭐ on [GitHub](https://github.com/Life-Experimentalist/ToxicGuard_AI)!
 
 Made with ❤️ by [VKrishna04](https://github.com/VKrishna04) and [contributors](https://github.com/Life-Experimentalist/ToxicGuard_AI/graphs/contributors)

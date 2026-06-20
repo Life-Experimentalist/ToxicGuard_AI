@@ -1,6 +1,6 @@
 # 🌐 GitHub Pages Deployment Guide
 
-Deploy ToxicGuard AI landing page to GitHub Pages for free hosting.
+Deploy Toxic Shield landing page to GitHub Pages for free hosting.
 
 ## 📋 Prerequisites
 
@@ -122,7 +122,7 @@ git push origin main
 Edit `index.html` around line 400:
 
 ```html
-<h1>🛡️ ToxicGuard AI</h1>
+<h1>🛡️ Toxic Shield</h1>
 <p class="subtitle">Your custom tagline here</p>
 ```
 
@@ -191,7 +191,7 @@ Already included in the updated `index.html`:
 ```html
 <meta name="description" content="...">
 <meta name="keywords" content="...">
-<meta property="og:title" content="ToxicGuard AI">
+<meta property="og:title" content="Toxic Shield">
 <meta property="og:description" content="...">
 <meta property="og:image" content="...">
 <meta name="twitter:card" content="summary_large_image">
@@ -411,7 +411,7 @@ jobs:
 
 ## ✅ Success!
 
-Your ToxicGuard AI landing page is now live and accessible worldwide! 🎉
+Your Toxic Shield landing page is now live and accessible worldwide! 🎉
 
 **Share your site:**
 - 🐦 Twitter

@@ -1,4 +1,4 @@
-# ToxicGuard AI - ML Architecture Refactor (v2.0)
+# Toxic Shield - ML Architecture Refactor (v2.0)
 
 ## 🎯 What Changed
 

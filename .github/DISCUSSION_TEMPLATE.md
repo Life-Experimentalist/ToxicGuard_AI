@@ -1,7 +1,7 @@
 ## 💬 Discussions
 
 ### 🗣️ General
-- **Ideas and Suggestions**: Share your ideas for improving ToxicGuard AI
+- **Ideas and Suggestions**: Share your ideas for improving Toxic Shield
 - **Show and Tell**: Show how you're using the extension
 - **Q&A**: Ask questions about installation, usage, or troubleshooting
 
