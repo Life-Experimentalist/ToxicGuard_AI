@@ -2,7 +2,7 @@
 	"$schema": "https://vkrishna04.me/schemas/project-manifest.schema.json",
 	"manifestVersion": 2,
 	"tagline": "On-device toxic language detection in the browser.",
-	"summary": "A cross-browser Manifest V3 extension that flags or censors toxic language as it is typed, using TensorFlow.js and the toxicity model loaded inside the content script. Classification happens on the device, so the text being checked never leaves the browser.",
+	"summary": "Toxic Shield is a cross-browser Manifest V3 extension that flags or censors toxic language as it is typed, using TensorFlow.js and the toxicity model. The content script forwards text to the extension's background service worker, which runs the classifier; the text being checked never leaves the browser.",
 	"status": "complete",
 	"icon": "SiTensorflow",
 	"readme": true,
@@ -18,10 +18,10 @@
 		"tensorflow"
 	],
 	"highlights": [
-		"Runs the toxicity model inside the content script, so the text being classified never leaves the device.",
+		"Runs the classifier in the extension's background service worker, so the text being checked never leaves the browser.",
 		"Watches inputs, textareas and contenteditable elements, rather than only standard form fields.",
 		"Highlights or auto-censors depending on a user setting, both toggleable from the popup.",
-		"Works across browsers on Manifest V3, with a local model copy as an alternative to the CDN."
+		"Works across browsers on Manifest V3, bundling the TensorFlow.js runtime locally and fetching the model weights from TF Hub on first load."
 	],
 	"links": {
 		"repo": "https://github.com/Life-Experimentalist/ToxicGuard_AI"

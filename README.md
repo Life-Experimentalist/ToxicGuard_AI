@@ -26,7 +26,8 @@ A privacy-forward browser extension that detects and optionally censors toxic la
 
 Toxic Shield is a cross-browser Manifest V3 extension that:
 
-- Loads a local copy or CDN copy of TensorFlow.js and the toxicity model in content scripts.
+- Loads the bundled TensorFlow.js runtime and toxicity wrapper from `lib/tensorflow/` inside the background service worker.
+- Downloads the toxicity model weights from TF Hub the first time the model loads; classification itself runs locally, so the text being checked never leaves the browser.
 - Monitors text inputs, textareas and contenteditable elements for toxic content.
 - Highlights or auto-censors offensive content depending on user settings.
 - Exposes a popup UI for toggling detection and auto-censoring.
@@ -34,10 +35,10 @@ Toxic Shield is a cross-browser Manifest V3 extension that:
 Key files:
 
 - `manifest.json` — Extension registration and content script loading
-- `background.js` — Service worker (install defaults, injects content script, routes messages)
-- `content.js` — Detection engine loaded into web pages
+- `background.js` — Service worker (install defaults, injects content script, loads the model and runs classification)
+- `content.js` — Watches page inputs and sends their text to the service worker for classification
 - `popup.html` / `popup.js` — Settings UI
-- `lib/tensorflow/*` — Optional local TFJS + toxicity model assets (fallback to CDN)
+- `lib/tensorflow/*` — Local TensorFlow.js runtime and toxicity wrapper (the model weights themselves are fetched from TF Hub at runtime)
 - `test.html` — Local test harness for debugging
 
 
@@ -49,8 +50,8 @@ Clone, install (if needed), and load the extension in developer mode:
 # Clone the repo
 git clone https://github.com/Life-Experimentalist/ToxicGuard_AI.git ; cd ToxicGuard_AI
 
-# (Optional) Download local TFJS assets if you prefer offline usage
-node setup.js
+# (Optional) Re-download the TensorFlow.js runtime files into lib/tensorflow/
+node scripts/setup.js
 
 # Load the folder as an unpacked extension in your browser:
 # Chrome/Edge: open chrome://extensions and "Load unpacked"
@@ -75,8 +76,8 @@ flowchart LR
   POPUP[popup.html / popup.js]
 
   UI -->|input events| CS
-  CS -->|loads model| MODEL
-  CS -->|sends settings / telemetry| BG
+  CS -->|analyzeText message| BG
+  BG -->|loads model, classifies text| MODEL
   BG -->|persists settings| STORAGE
   POPUP -->|updates settings| BG
   BG -->|broadcasts changes| CS
@@ -86,9 +87,9 @@ flowchart LR
 Elements and single-line explanations:
 
 - UI — The web page elements (input, textarea, contenteditable) that users interact with.
-- CS — `content.js`, injected into pages; observes inputs, debounces events and runs detection.
+- CS — `content.js`, injected into pages; observes inputs, debounces events and forwards text to the service worker.
 - MODEL — TensorFlow.js runtime and `@tensorflow-models/toxicity` classifier performing predictions.
-- BG — `background.js`, service worker that manages defaults, messaging, and cross-tab sync.
+- BG — `background.js`, service worker that loads the model, runs classification, and manages defaults and messaging.
 - STORAGE — `chrome.storage.local` where user preferences and thresholds are persisted.
 - POPUP — `popup.html / popup.js`, the extension settings UI that modifies preferences.
 
@@ -103,11 +104,12 @@ sequenceDiagram
   participant BG as background.js
 
   User->>CS: input event (debounced)
-  CS->>Model: classify(text)
-  Model-->>CS: predictions
+  CS->>BG: analyzeText(text)
+  BG->>Model: classify(text)
+  Model-->>BG: predictions
+  BG-->>CS: predictions
   alt toxic detected
     CS->>CS: highlight or censor text
-    CS->>BG: send telemetry/settings update (optional)
     CS-->>User: visual feedback (tooltip/border/censor)
   else clean
     CS-->>User: no action or subtle indicator
@@ -117,9 +119,9 @@ sequenceDiagram
 Elements and single-line explanations:
 
 - User — Person typing or pasting text into page inputs.
-- CS — `content.js`, which debounces, prepares text, and runs classification.
+- CS — `content.js`, which debounces, prepares text, and sends it to the service worker.
 - Model — The toxicity classifier returning per-category predictions and probabilities.
-- BG — `background.js`, receives optional telemetry, stores settings, and broadcasts config.
+- BG — `background.js`, loads the model, classifies the text it is sent, stores settings and broadcasts config.
 
 
 ### Component Map (Mermaid)
@@ -130,7 +132,7 @@ graph TD
   BG_FILE[background.js]
   CS_FILE[content.js]
   POPUP[popup.html / popup.js]
-  LIB[lib/tensorflow/* or CDN]
+  LIB[lib/tensorflow/* local runtime]
   UI[page input elements]
   TEST[test.html]
   CSS[styles.css / popup styles]
@@ -138,7 +140,7 @@ graph TD
   M --> BG_FILE
   M --> CS_FILE
   M --> POPUP
-  CS_FILE --> LIB
+  BG_FILE --> LIB
   CS_FILE --> UI
   POPUP --> BG_FILE
   BG_FILE --> STORAGE[chrome.storage.local]
@@ -149,10 +151,10 @@ graph TD
 Elements and single-line explanations:
 
 - manifest.json — Declares permissions, content scripts, and web_accessible_resources.
-- background.js — Bootstraps default settings, handles messaging and storage interactions.
-- content.js — Runs in page context, loads model and inspects user input for toxicity.
+- background.js — Loads the model, classifies text on request, bootstraps default settings and handles storage.
+- content.js — Runs in page context, inspects user input and sends it to the service worker for classification.
 - popup.html / popup.js — Settings UI to enable/disable detection and tweak thresholds.
-- lib/tensorflow/* — Local static assets (tf.min.js, toxicity.min.js) used when offline.
+- lib/tensorflow/* — Local runtime assets (tf.min.js, toxicity.min.js) imported by the service worker; the model weights are fetched from TF Hub.
 - page input elements — Inputs, textareas, and contenteditable regions targeted by content.js.
 - test.html — Developer test harness to exercise inputs, shadow DOM, iframes and dynamic nodes.
 - styles.css — Shared styling for popup/test UI.
@@ -214,14 +216,14 @@ ToxicGuard_AI/
 ## Development & Validation
 
 - Use PowerShell commands shown in Quick Start.
-- `setup.js` will download TFJS assets into `lib/tensorflow` when run with Node.js.
+- `scripts/setup.js` re-downloads the TensorFlow.js runtime files into `lib/tensorflow/`. It does not fetch the model weights; those are downloaded from TF Hub when the extension loads the model.
 - Validate cross-browser manifest compatibility before publishing.
 
 Recommended workflow:
 
 ```powershell
-# Download TFJS locally (optional)
-node setup.js
+# Re-download the TensorFlow.js runtime files (optional)
+node scripts/setup.js
 
 # Load in browser for local testing (use the browser developer extension UI)
 # Use test.html to exercise input scenarios
